@@ -18,5 +18,16 @@ export function getDb() {
 export async function query<T = any>(sql: string, params?: any[]): Promise<T> {
   const db = getDb();
   const result = await db.query(sql, params);
-  return result.rows as T;
+  
+  // Для INSERT с RETURNING
+  if (result.rows && result.rows.length > 0) {
+    return result.rows as T;
+  }
+  
+  // Для SELECT
+  if (result.rows) {
+    return result.rows as T;
+  }
+  
+  return [] as T;
 }
