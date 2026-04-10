@@ -1,4 +1,4 @@
-// app/components/AppointmentModal.tsx (обновленная версия)
+// app/components/AppointmentModal.tsx
 "use client";
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
@@ -53,18 +53,28 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
 
-  // Загрузка врачей при открытии модалки
+  // Загрузка врачей и услуг при открытии модалки
   useEffect(() => {
     if (isOpen) {
       fetchDoctors();
       fetchServices();
     }
   }, [isOpen]);
+
+  // ⭐ ВАЖНО: Загрузка слотов при изменении врача или даты
+  useEffect(() => {
+    if (formData.doctorId && formData.date) {
+      fetchAvailableSlots(formData.doctorId, formData.date);
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [formData.doctorId, formData.date]);
 
   const fetchDoctors = async () => {
     try {
@@ -95,10 +105,15 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
   const fetchAvailableSlots = async (doctorId: string, date: string) => {
     if (!doctorId || !date) return;
     
+    console.log('Fetching slots for:', { doctorId, date });
+    setIsLoadingSlots(true);
+    
     try {
       const res = await fetch(`/api/slots?doctorId=${doctorId}&date=${date}`);
       const data = await res.json();
-      if (data.slots) {
+      console.log('Slots response:', data);
+      
+      if (data.slots && Array.isArray(data.slots)) {
         setAvailableSlots(data.slots);
       } else {
         setAvailableSlots([]);
@@ -106,6 +121,8 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
     } catch (error) {
       console.error('Error fetching slots:', error);
       setAvailableSlots([]);
+    } finally {
+      setIsLoadingSlots(false);
     }
   };
 
@@ -115,16 +132,6 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
       ...prev,
       [name]: value
     }));
-    
-    // Если изменился врач или дата, обновляем доступные слоты
-    if (name === 'doctorId' || name === 'date') {
-      if (formData.doctorId && (name === 'date' ? value : formData.date)) {
-        fetchAvailableSlots(
-          name === 'doctorId' ? value : formData.doctorId,
-          name === 'date' ? value : formData.date
-        );
-      }
-    }
   };
 
   const getNextDates = () => {
@@ -407,15 +414,22 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                     onChange={handleChange}
                     className={styles.formSelect}
                     required
-                    disabled={!formData.doctorId || !formData.date}
+                    disabled={!formData.doctorId || !formData.date || isLoadingSlots}
                   >
-                    <option value="">Выберите время</option>
+                    <option value="">
+                      {isLoadingSlots ? 'Загрузка...' : 'Выберите время'}
+                    </option>
                     {timeSlots.map(time => (
                       <option key={time} value={time}>
                         {time}
                       </option>
                     ))}
                   </select>
+                  {formData.doctorId && formData.date && timeSlots.length === 0 && !isLoadingSlots && (
+                    <p style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
+                      Нет свободного времени на выбранную дату
+                    </p>
+                  )}
                 </div>
               </div>
 
