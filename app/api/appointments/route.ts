@@ -1,15 +1,15 @@
 // app/api/appointments/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '../../lib/db';
+import { query } from '@/app/lib/db';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_SECRET = process.env.JWT_SECRET || 'pallua_clinic_secret_key_2025';
 
 // Получить все записи (для админа или свои для пациента)
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();  // ← ДОБАВЛЕН await
+    const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
     let userId: number | null = null;
     let userRole: string | null = null;
@@ -40,11 +40,11 @@ export async function GET(request: NextRequest) {
          FROM appointments a
          LEFT JOIN doctors d ON a.doctor_id = d.id
          LEFT JOIN services s ON a.service_id = s.id
-         WHERE a.user_id = ? OR a.patient_phone IN (
-           SELECT phone FROM users WHERE id = ?
+         WHERE a.user_id = $1 OR a.patient_phone IN (
+           SELECT phone FROM users WHERE id = $1
          )
          ORDER BY a.appointment_date DESC, a.appointment_time DESC`,
-        [userId, userId]
+        [userId]
       );
     } else {
       return NextResponse.json({ appointments: [] });
@@ -75,10 +75,12 @@ export async function POST(request: NextRequest) {
       comment
     } = body;
 
+    console.log('Creating appointment:', { patientName, patientPhone, doctorId, appointmentDate, appointmentTime });
+
     // Проверка, что слот свободен
     const existing = await query<any[]>(
       `SELECT id FROM appointments 
-       WHERE doctor_id = ? AND appointment_date = ? AND appointment_time = ? 
+       WHERE doctor_id = $1 AND appointment_date = $2 AND appointment_time = $3 
        AND status NOT IN ('cancelled')`,
       [doctorId, appointmentDate, appointmentTime]
     );
@@ -91,7 +93,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Получаем текущего пользователя, если авторизован
-    const cookieStore = await cookies();  // ← ДОБАВЛЕН await
+    const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
     let userId: number | null = null;
 
@@ -102,11 +104,12 @@ export async function POST(request: NextRequest) {
       } catch (e) {}
     }
 
-    // Создаем запись
+    // Создаем запись (PostgreSQL синтаксис)
     const result = await query<any>(
       `INSERT INTO appointments 
        (user_id, patient_name, patient_phone, patient_email, doctor_id, service_id, appointment_date, appointment_time, comment, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING id`,
       [
         userId,
         patientName,
@@ -121,15 +124,17 @@ export async function POST(request: NextRequest) {
       ]
     );
 
+    console.log('Appointment created with id:', result[0].id);
+
     return NextResponse.json({
       success: true,
-      appointmentId: result.insertId,
+      appointmentId: result[0].id,
       message: 'Запись успешно создана! Мы свяжемся с вами для подтверждения.'
     });
   } catch (error) {
     console.error('Create appointment error:', error);
     return NextResponse.json(
-      { error: 'Ошибка при создании записи' },
+      { error: 'Ошибка при создании записи: ' + String(error) },
       { status: 500 }
     );
   }
