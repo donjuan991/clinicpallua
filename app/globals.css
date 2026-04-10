@@ -1,0 +1,402 @@
+/* ====================== */
+/* ГЛОБАЛЬНЫЕ СТИЛИ КЛИНИКИ */
+/* ====================== */
+
+/* Импорт шрифтов */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Сброс стилей */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* CSS переменные для светлой темы */
+:root {
+    /* Основная цветовая палитра на основе #771d55 */
+    --primary-color: #771d55;
+    --primary-hover: #5e1644;
+    --primary-light: #f2e8ef;
+    --secondary-color: #9a366e;
+    --accent-color: #d48fb8;
+    --accent-hover: #e5b2d1;
+    
+    /* Текст */
+    --text-dark: #2d2d2d;
+    --text-medium: #555555;
+    --text-light: #777777;
+    --text-on-dark: #ffffff;
+    
+    /* Фоны */
+    --white: #ffffff;
+    --gray-bg: #f9f9f9;
+    --card-bg: #ffffff;
+    
+    /* Границы */
+    --border-color: #e8e8e8;
+    --border-dark: #d0d0d0;
+    
+    /* Тени */
+    --shadow: 0 4px 12px rgba(119, 29, 85, 0.08);
+    --shadow-hover: 0 8px 24px rgba(119, 29, 85, 0.12);
+    --shadow-dark: 0 4px 12px rgba(119, 29, 85, 0.2);
+    --shadow-strong: 0 10px 30px rgba(119, 29, 85, 0.15);
+    
+    /* Радиусы */
+    --radius: 12px;
+    --radius-lg: 20px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Градиенты */
+    --gradient-primary: linear-gradient(135deg, #771d55 0%, #9a366e 100%);
+    --gradient-light: linear-gradient(135deg, #f2e8ef 0%, #ffffff 100%);
+    --gradient-hover: linear-gradient(135deg, #5e1644 0%, #771d55 100%);
+    --gradient-accent: linear-gradient(135deg, #d48fb8 0%, #f2e8ef 100%);
+    
+    /* Эффекты */
+    --glow: 0 0 20px rgba(119, 29, 85, 0.2);
+}
+
+/* CSS переменные для темной темы */
+[data-theme="dark"] {
+    /* Цветовая палитра для темной темы */
+    --primary-color: #d48fb8;
+    --primary-hover: #e5b2d1;
+    --primary-light: #2a1a24;
+    --secondary-color: #b36695;
+    --accent-color: #9a366e;
+    --accent-hover: #771d55;
+    
+    /* Текст */
+    --text-dark: #e8e8e8;
+    --text-medium: #b0b0b0;
+    --text-light: #888888;
+    --text-on-dark: #ffffff;
+    
+    /* Фоны */
+    --white: #1a1a1a;
+    --gray-bg: #2a2a2a;
+    --card-bg: #242424;
+    
+    /* Границы */
+    --border-color: #404040;
+    --border-dark: #505050;
+    
+    /* Тени */
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-dark: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-strong: 0 10px 30px rgba(0, 0, 0, 0.6);
+    
+    /* Градиенты */
+    --gradient-primary: linear-gradient(135deg, #9a366e 0%, #771d55 100%);
+    --gradient-light: linear-gradient(135deg, #2a1a24 0%, #1a1a1a 100%);
+    --gradient-hover: linear-gradient(135deg, #771d55 0%, #5e1644 100%);
+    --gradient-accent: linear-gradient(135deg, #2a1a24 0%, #9a366e 100%);
+    
+    /* Эффекты */
+    --glow: 0 0 20px rgba(212, 143, 184, 0.3);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background-color: var(--white);
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Общие классы */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.section {
+    padding: 80px 0;
+    transition: background-color 0.3s ease;
+}
+
+.section-title {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-align: center;
+    transition: color 0.3s ease;
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--gradient-primary);
+    border-radius: 3px;
+}
+
+.section-subtitle {
+    font-size: 18px;
+    color: var(--text-light);
+    text-align: center;
+    max-width: 800px;
+    margin: 30px auto 50px;
+    line-height: 1.6;
+    transition: color 0.3s ease;
+}
+
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 14px 32px;
+    background: var(--gradient-primary);
+    color: var(--text-on-dark);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: var(--shadow);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+    z-index: -1;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+    background: var(--gradient-hover);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    background: var(--primary-color);
+    color: var(--text-on-dark);
+    border-color: var(--primary-color);
+}
+
+/* Ссылки */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+}
+
+a:hover {
+    color: var(--primary-hover);
+}
+
+a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    transition: var(--transition);
+}
+
+a:hover::after {
+    width: 100%;
+}
+
+/* Формы */
+input, textarea, select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    transition: var(--transition);
+    background-color: var(--card-bg);
+    color: var(--text-dark);
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(119, 29, 85, 0.1);
+}
+
+/* Темная тема для placeholder */
+[data-theme="dark"] ::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .section {
+        padding: 50px 0;
+    }
+    
+    .section-title {
+        font-size: 28px;
+    }
+    
+    .section-subtitle {
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+}
+
+/* Утилиты для темной темы */
+.theme-icon {
+    transition: transform 0.3s ease;
+}
+
+.theme-icon:hover {
+    transform: rotate(30deg);
+}
+
+/* Анимация перехода темы */
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+}
+
+/* Высокий контраст */
+.high-contrast {
+    --text-dark: #000000;
+    --text-light: #333333;
+    --text-on-dark: #FFFFFF;
+    --primary-color: #551133;
+    --primary-hover: #330011;
+    --secondary-color: #440022;
+    --white: #FFFFFF;
+    --gray-bg: #F0F0F0;
+    --card-bg: #FFFFFF;
+    --border-color: #000000;
+    --border-dark: #000000;
+}
+
+.high-contrast .section-title {
+    color: #551133;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.high-contrast .btn {
+    background-color: #551133;
+    border: 3px solid #000;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.high-contrast .btn:hover {
+    background-color: #330011;
+    border-color: #000;
+}
+
+/* Скрыть изображения */
+.hide-images img,
+.hide-images .imagePlaceholder,
+.hide-images .doctorImage,
+.hide-images .heroImage,
+.hide-images .avatar {
+    display: none !important;
+}
+
+.hide-images .imagePlaceholder::before,
+.hide-images .doctorImage::before {
+    content: '[Изображение]';
+    color: var(--text-light);
+    font-size: 12px;
+    background: var(--gray-bg);
+    padding: 5px;
+    border-radius: 4px;
+}
+
+/* Увеличенный межбуквенный интервал */
+.letter-spacing * {
+    letter-spacing: 1px !important;
+}
+
+.letter-spacing h1,
+.letter-spacing h2,
+.letter-spacing h3,
+.letter-spacing h4 {
+    letter-spacing: 2px !important;
+}
+
+/* Увеличенный межстрочный интервал */
+.line-height * {
+    line-height: 1.8 !important;
+}
+
+.line-height p,
+.line-height li,
+.line-height span {
+    line-height: 2 !important;
+}
+
+/* Оттенки серого */
+.grayscale body,
+.grayscale img,
+.grayscale * {
+    filter: grayscale(100%) !important;
+}
+
+/* Горячие клавиши */
+body:has(.accessibility-panel) {
+    position: relative;
+}
+
+/* Увеличенные зоны клика для слабовидящих */
+.high-contrast button,
+.high-contrast a,
+.high-contrast input[type="checkbox"],
+.high-contrast input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.high-contrast .navLink {
+    padding: 12px 20px !important;
+}

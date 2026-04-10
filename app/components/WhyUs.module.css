@@ -1,0 +1,328 @@
+/* ====================== */
+/* СТИЛИ WHY US  */
+/* ====================== */
+
+.whyUs {
+    padding: 100px 0;
+    background: var(--gradient-light);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Сетка преимуществ */
+.advantagesGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+/* Карточка преимущества */
+.advantageCard {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 35px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    z-index: 1;
+}
+
+.advantageCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: var(--gradient-primary);
+    z-index: 2;
+}
+
+.advantageCard:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-strong);
+    border-color: var(--primary-color);
+}
+
+/* Иконка преимущества */
+.advantageIcon {
+    width: 70px;
+    height: 70px;
+    background: var(--gradient-primary);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 28px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 15px rgba(119, 29, 85, 0.2);
+    transition: var(--transition);
+}
+
+.advantageCard:hover .advantageIcon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 20px rgba(119, 29, 85, 0.3);
+}
+
+/* Контент преимущества */
+.advantageContent {
+    margin-bottom: 20px;
+}
+
+.advantageTitle {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+.advantageDescription {
+    color: var(--text-light);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Детали преимущества */
+.advantageDetails {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.detailItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-dark);
+    padding: 5px 0;
+}
+
+.detailItem i {
+    color: var(--primary-color);
+    font-size: 16px;
+    background: var(--primary-light);
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Декоративный элемент */
+.advantageDecor {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(45deg, transparent 50%, rgba(119, 29, 85, 0.05) 50%);
+    border-radius: 0 0 0 100%;
+    pointer-events: none;
+}
+
+/* Дополнительные факты */
+.facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    background-color: var(--white);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.fact {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.factIcon {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-light);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 24px;
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.fact:hover .factIcon {
+    background: var(--gradient-primary);
+    color: var(--white);
+    transform: rotate(10deg);
+}
+
+.factContent h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.factContent p {
+    color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Декоративные элементы фона */
+.whyUs::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(119, 29, 85, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.whyUs::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(119, 29, 85, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+/* Статистика */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    margin-top: 60px;
+    padding: 40px;
+    background: var(--gradient-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.statItem {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+}
+
+.statItem::after {
+    content: '';
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 60px;
+    background: var(--border-color);
+}
+
+.statItem:last-child::after {
+    display: none;
+}
+
+.statNumber {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    line-height: 1;
+    text-shadow: 2px 2px 4px rgba(119, 29, 85, 0.1);
+}
+
+.statText {
+    font-size: 16px;
+    color: var(--text-medium);
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1024px) {
+    .advantagesGrid {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+        margin: 0 auto 60px;
+    }
+    
+    .facts {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .statItem::after {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .whyUs {
+        padding: 60px 0;
+    }
+    
+    .facts {
+        grid-template-columns: 1fr;
+        padding: 30px;
+        gap: 20px;
+    }
+    
+    .advantageCard {
+        padding: 25px;
+    }
+    
+    .fact {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stats {
+        padding: 30px;
+        gap: 15px;
+    }
+    
+    .statNumber {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .advantageIcon {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .advantageTitle {
+        font-size: 20px;
+    }
+    
+    .stats {
+        grid-template-columns: 1fr;
+    }
+}

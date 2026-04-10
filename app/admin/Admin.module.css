@@ -1,0 +1,720 @@
+/* app/admin/Admin.module.css */
+.container {
+  min-height: 100vh;
+  background: var(--gray-bg);
+  padding: 100px 20px 60px;
+}
+
+.header {
+  max-width: 1400px;
+  margin: 0 auto 30px;
+}
+
+.header h1 {
+  font-size: 32px;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.header p {
+  color: var(--text-light);
+}
+
+/* Статистика */
+.statsGrid {
+  max-width: 1400px;
+  margin: 0 auto 30px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.statCard {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.statIcon {
+  width: 60px;
+  height: 60px;
+  background: rgba(119, 29, 85, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.statIcon i {
+  color: var(--primary-color);
+}
+
+.statInfo {
+  flex: 1;
+}
+
+.statNumber {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+/* Табы */
+.tabs {
+  max-width: 1400px;
+  margin: 0 auto 30px;
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--primary-color);
+}
+
+.tab.active {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  margin-bottom: -2px;
+}
+
+/* Контент */
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  border: 1px solid var(--border-color);
+}
+
+/* Фильтры */
+.filters {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.filterSelect,
+.filterInput {
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--text-dark);
+  font-size: 14px;
+}
+
+.resetBtn {
+  padding: 10px 20px;
+  background: var(--gray-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-light);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resetBtn:hover {
+  background: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* Таблица записей */
+.appointmentsTable {
+  overflow-x: auto;
+}
+
+.appointmentsTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.appointmentsTable th,
+.appointmentsTable td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.appointmentsTable th {
+  font-weight: 600;
+  color: var(--text-dark);
+  background: var(--gray-bg);
+}
+
+.appointmentsTable td {
+  color: var(--text-dark);
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusPending {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.statusConfirmed {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.statusCompleted {
+  background: rgba(23, 162, 184, 0.1);
+  color: #17a2b8;
+}
+
+.statusCancelled {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+/* Действия */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmBtn {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.confirmBtn:hover {
+  background: #28a745;
+  color: white;
+}
+
+.completeBtn {
+  background: rgba(23, 162, 184, 0.1);
+  color: #17a2b8;
+}
+
+.completeBtn:hover {
+  background: #17a2b8;
+  color: white;
+}
+
+.cancelBtn {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.cancelBtn:hover {
+  background: #ffc107;
+  color: white;
+}
+
+.deleteBtn {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.deleteBtn:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* Врачи */
+.doctorsList {
+  margin-top: 20px;
+}
+
+.addBtn {
+  padding: 12px 24px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.addBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.doctorsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.doctorCard {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.doctorCard:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.doctorHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: var(--gray-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.doctorAvatar {
+  width: 60px;
+  height: 60px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+
+.doctorInfo h3 {
+  font-size: 18px;
+  color: var(--text-dark);
+  margin-bottom: 5px;
+}
+
+.doctorInfo p {
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+.activeBadge {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.inactiveBadge {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.doctorBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.infoRow i {
+  width: 20px;
+  color: var(--primary-color);
+}
+
+.doctorActions {
+  display: flex;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.editBtn {
+  flex: 1;
+  padding: 8px;
+  background: var(--gray-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.editBtn:hover {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.doctorActions .deleteBtn {
+  flex: 1;
+  padding: 8px;
+  background: rgba(220, 53, 69, 0.1);
+  border: none;
+  border-radius: var(--radius);
+  color: #dc3545;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.doctorActions .deleteBtn:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* Услуги */
+.servicesTable {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.servicesTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.servicesTable th,
+.servicesTable td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.servicesTable th {
+  font-weight: 600;
+  color: var(--text-dark);
+  background: var(--gray-bg);
+}
+
+/* Расписание */
+.scheduleSection {
+  margin-top: 20px;
+}
+
+.scheduleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.scheduleHeader h3 {
+  font-size: 20px;
+  color: var(--text-dark);
+}
+
+.doctorSelect {
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  min-width: 250px;
+}
+
+.scheduleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.scheduleDayCard {
+  background: var(--gray-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.dayHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dayHeader h4 {
+  font-size: 16px;
+  color: var(--text-dark);
+}
+
+.workingToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+.timeInputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.timeInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--text-dark);
+}
+
+.timeInput:disabled {
+  opacity: 0.5;
+  background: var(--gray-bg);
+}
+
+.exceptionsSection {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: var(--gray-bg);
+  border-radius: var(--radius);
+}
+
+.exceptionsSection h4 {
+  font-size: 16px;
+  color: var(--text-dark);
+  margin-bottom: 15px;
+}
+
+.exceptionForm {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.dateInput {
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.exceptionType {
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.addExceptionBtn {
+  padding: 10px 20px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exceptionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exceptionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+}
+
+.exceptionItem span:first-child {
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.exceptionType {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.removeExceptionBtn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.saveScheduleBtn {
+  padding: 12px 30px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.saveScheduleBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Общие стили */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  gap: 15px;
+  color: var(--text-light);
+}
+
+.loading i {
+  font-size: 48px;
+  color: var(--primary-color);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px;
+  color: var(--text-light);
+}
+
+.emptyState i {
+  font-size: 64px;
+  color: var(--border-color);
+  margin-bottom: 20px;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 80px 15px 40px;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .doctorsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .scheduleGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters {
+    flex-direction: column;
+  }
+  
+  .filterSelect,
+  .filterInput,
+  .resetBtn {
+    width: 100%;
+  }
+  
+  .scheduleHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .doctorSelect {
+    width: 100%;
+  }
+}

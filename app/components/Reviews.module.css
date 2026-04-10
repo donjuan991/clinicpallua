@@ -1,0 +1,391 @@
+/* ====================== */
+/* СТИЛИ REVIEWS  */
+/* ====================== */
+
+.reviews {
+    padding: 100px 0;
+    background-color: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Слайдер отзывов */
+.reviewsSlider {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.sliderContainer {
+    flex: 1;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.sliderTrack {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reviewSlide {
+    min-width: 100%;
+    padding: 20px;
+}
+
+/* Карточка отзыва */
+.reviewCard {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    height: 100%;
+    position: relative;
+}
+
+.reviewCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: var(--radius) 0 0 var(--radius);
+}
+
+/* Шапка отзыва */
+.reviewHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 24px;
+    font-weight: 600;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(119, 29, 85, 0.2);
+}
+
+.reviewerInfo {
+    flex: 1;
+}
+
+.reviewerName {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.reviewerDetails {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.reviewerAge {
+    color: var(--text-medium);
+}
+
+.reviewTreatment {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Рейтинг */
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.starActive {
+    color: #FFC107;
+    font-size: 16px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.starInactive {
+    color: var(--border-color);
+    font-size: 16px;
+}
+
+.ratingText {
+    margin-left: 10px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* Дата отзыва */
+.reviewDate {
+    color: var(--text-light);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reviewDate i {
+    font-size: 14px;
+    color: var(--primary-color);
+}
+
+/* Текст отзыва */
+.reviewText {
+    margin-bottom: 25px;
+}
+
+.reviewText p {
+    color: var(--text-dark);
+    line-height: 1.6;
+    font-size: 16px;
+    margin: 0;
+    position: relative;
+    padding-left: 10px;
+}
+
+.reviewText p::before {
+    content: '❝';
+    color: var(--primary-color);
+    font-size: 24px;
+    position: absolute;
+    left: -10px;
+    top: -5px;
+    opacity: 0.5;
+}
+
+/* Действия с отзывом */
+.reviewActions {
+    display: flex;
+    gap: 15px;
+}
+
+.likeBtn, .replyBtn, .shareBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+    background: var(--white);
+    color: var(--text-light);
+}
+
+.likeBtn:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.replyBtn:hover {
+    background-color: rgba(212, 143, 184, 0.1);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.shareBtn:hover {
+    background-color: rgba(154, 54, 110, 0.1);
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+/* Кнопки слайдера */
+.sliderBtnPrev, .sliderBtnNext {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    color: var(--text-dark);
+    font-size: 18px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--shadow);
+}
+
+.sliderBtnPrev:hover, .sliderBtnNext:hover {
+    background: var(--gradient-primary);
+    border-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Индикаторы */
+.sliderIndicators {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--border-color);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    padding: 0;
+}
+
+.indicator.active {
+    background-color: var(--primary-color);
+    transform: scale(1.2);
+    box-shadow: var(--glow);
+}
+
+/* Кнопка добавления отзыва */
+.addReview {
+    text-align: center;
+    padding: 40px;
+    background: var(--gradient-light);
+    border-radius: var(--radius-lg);
+    border: 2px dashed var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.addReview::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--gradient-accent);
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.addReviewBtn {
+    background: var(--gradient-primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 1;
+    box-shadow: var(--shadow);
+}
+
+.addReviewBtn:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.reviewNote {
+    color: var(--text-light);
+    font-size: 14px;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1024px) {
+    .reviewsSlider {
+        gap: 10px;
+    }
+    
+    .sliderBtnPrev, .sliderBtnNext {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .reviews {
+        padding: 60px 0;
+    }
+    
+    .reviewHeader {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+    
+    .reviewDate {
+        align-self: center;
+    }
+    
+    .reviewActions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .addReview {
+        padding: 30px 20px;
+    }
+    
+    .reviewsSlider {
+        flex-direction: column;
+    }
+    
+    .sliderBtnPrev, .sliderBtnNext {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+    }
+    
+    .sliderBtnPrev {
+        left: 10px;
+    }
+    
+    .sliderBtnNext {
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .reviewerDetails {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .reviewCard {
+        padding: 20px;
+    }
+    
+    .sliderBtnPrev, .sliderBtnNext {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+}

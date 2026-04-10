@@ -1,0 +1,361 @@
+/* ====================== */
+/* СТИЛИ FOOTER*/
+/* ====================== */
+
+.footer {
+    background: var(--gradient-primary);
+    color: var(--white);
+    padding: 60px 0 30px;
+    margin-top: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.3;
+}
+
+.footerContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Верхняя часть футера */
+.footerTop {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    margin-bottom: 40px;
+}
+
+.footerLogo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: var(--transition);
+}
+
+.logo:hover {
+    transform: translateY(-2px);
+}
+
+.logo i {
+    font-size: 48px;
+    color: var(--white);
+    background: rgba(255, 255, 255, 0.1);
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logoText h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--white);
+}
+
+.logoText p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    max-width: 300px;
+}
+
+.socialLinks {
+    display: flex;
+    gap: 15px;
+}
+
+.socialLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: var(--white);
+    font-size: 18px;
+    transition: var(--transition);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.socialLink:hover {
+    background-color: var(--white);
+    color: var(--primary-color);
+    transform: translateY(-3px) rotate(5deg);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Сетка футера */
+.footerGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+.footerColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.footerTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--white);
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.footerTitle::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: var(--white);
+    border-radius: 3px;
+}
+
+.footerList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footerList li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    line-height: 1.5;
+    transition: var(--transition);
+}
+
+.footerList li:hover {
+    color: var(--white);
+    transform: translateX(5px);
+}
+
+.footerList a {
+    color: rgba(255, 255, 255, 0.8);
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.footerList a:hover {
+    color: var(--white);
+    padding-left: 5px;
+}
+
+.footerList i {
+    color: var(--white);
+    font-size: 14px;
+    margin-top: 3px;
+    min-width: 16px;
+    opacity: 0.8;
+}
+
+/* Колонка с кнопкой записи */
+.footerText {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.footerBtn {
+    background: var(--white);
+    color: var(--primary-color);
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition);
+    width: 100%;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.footerBtn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+}
+
+.footerBtn i {
+    font-size: 16px;
+}
+
+/* Нижняя часть футера */
+.footerBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.copyright {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.footerLinks {
+    display: flex;
+    gap: 30px;
+}
+
+.footerLinks a {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.footerLinks a:hover {
+    color: var(--white);
+    text-decoration: underline;
+}
+
+/* Кнопка телефона в футере */
+.footerPhoneBtn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.footerPhoneBtn:hover {
+    color: var(--white);
+    transform: translateY(-1px);
+}
+
+/* Кнопка цен в футере */
+.pricesBtn {
+    margin-top: 10px;
+    background-color: transparent;
+    color: var(--white);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.pricesBtn:hover {
+    background-color: var(--white);
+    color: var(--primary-color);
+    border-color: var(--white);
+    transform: translateY(-2px);
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1024px) {
+    .footerGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 40px 0 20px;
+    }
+    
+    .footerLogo {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .logo {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footerGrid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .footerBottom {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .footerLinks {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .footerTitle {
+        font-size: 16px;
+    }
+    
+    .footerList li {
+        font-size: 13px;
+    }
+    
+    .logo i {
+        width: 60px;
+        height: 60px;
+        font-size: 36px;
+    }
+}

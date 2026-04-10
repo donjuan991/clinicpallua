@@ -1,0 +1,438 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+    padding: 20px;
+    backdrop-filter: blur(5px);
+}
+
+.modalContent {
+    background-color: var(--card-bg);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+    box-shadow: var(--shadow-strong);
+    border: 1px solid var(--border-color);
+}
+
+.modalHeader {
+    padding: 25px 30px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--gradient-primary);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.modalHeader::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.3;
+}
+
+.modalTitle {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.modalTitle i {
+    font-size: 26px;
+}
+
+.closeButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    backdrop-filter: blur(5px);
+}
+
+.closeButton:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Форма отзыва */
+.reviewForm {
+    padding: 30px;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+}
+
+.formLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.formLabel i {
+    color: var(--primary-color);
+    font-size: 14px;
+    width: 16px;
+}
+
+.formInput, .formSelect, .formTextarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    transition: var(--transition);
+    background-color: var(--card-bg);
+    color: var(--text-dark);
+}
+
+.formInput:focus, .formSelect:focus, .formTextarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(119, 29, 85, 0.1);
+}
+
+.formSelect {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23771d55' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+
+.formTextarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+/* Секция рейтинга */
+.ratingSection {
+    margin-bottom: 25px;
+}
+
+.ratingStars {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.starButton {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: var(--border-color);
+    cursor: pointer;
+    transition: var(--transition);
+    padding: 5px;
+    line-height: 1;
+}
+
+.starButton:hover {
+    color: #FFC107;
+    transform: scale(1.2);
+}
+
+.starButton.active {
+    color: #FFC107;
+    text-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
+}
+
+.ratingText {
+    margin-left: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* Подсказка для отзыва */
+.reviewHint {
+    background-color: var(--primary-light);
+    padding: 12px 15px;
+    border-radius: var(--radius);
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-medium);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.reviewHint i {
+    color: var(--primary-color);
+    font-size: 14px;
+    margin-top: 1px;
+}
+
+/* Секция согласия */
+.privacySection {
+    background-color: var(--primary-light);
+    padding: 20px;
+    border-radius: var(--radius);
+    margin: 25px 0;
+    border: 1px solid var(--border-color);
+}
+
+.formCheckbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.formCheckbox:last-child {
+    margin-bottom: 0;
+}
+
+.checkboxInput {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+    accent-color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.checkboxLabel {
+    font-size: 14px;
+    color: var(--text-medium);
+    line-height: 1.5;
+    flex: 1;
+}
+
+/* Кнопки */
+.formActions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.cancelButton, .submitButton {
+    padding: 14px 25px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.cancelButton {
+    background-color: transparent;
+    color: var(--text-medium);
+    border: 2px solid var(--border-color);
+}
+
+.cancelButton:hover {
+    background-color: var(--gray-bg);
+    color: var(--text-dark);
+    border-color: var(--text-medium);
+}
+
+.submitButton {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: var(--shadow);
+}
+
+.submitButton:hover:not(:disabled) {
+    background: var(--gradient-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.submitButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Сообщение об успехе */
+.successMessage {
+    padding: 40px 30px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.successIcon {
+    width: 80px;
+    height: 80px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 40px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+}
+
+.successMessage h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.successMessage p {
+    color: var(--text-light);
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 400px;
+}
+
+.closeSuccessBtn {
+    margin-top: 10px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+}
+
+.closeSuccessBtn:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .modalContent {
+        max-height: 85vh;
+    }
+    
+    .modalHeader {
+        padding: 20px;
+    }
+    
+    .modalTitle {
+        font-size: 20px;
+    }
+    
+    .reviewForm {
+        padding: 20px;
+    }
+    
+    .formRow {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .formActions {
+        flex-direction: column;
+    }
+    
+    .successIcon {
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modalTitle {
+        font-size: 18px;
+    }
+    
+    .modalTitle i {
+        font-size: 22px;
+    }
+    
+    .ratingStars {
+        justify-content: center;
+    }
+    
+    .starButton {
+        font-size: 24px;
+    }
+    
+    .successMessage {
+        padding: 30px 20px;
+    }
+    
+    .successMessage h3 {
+        font-size: 20px;
+    }
+}

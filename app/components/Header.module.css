@@ -1,0 +1,614 @@
+/* ====================== */
+/* СТИЛИ HEADER */
+/* ====================== */
+
+/* ВЕРХНЯЯ ЧАСТЬ ШАПКИ */
+.headerTop {
+    background: var(--gradient-primary);
+    padding: 10px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(119, 29, 85, 0.2);
+}
+
+.headerTopContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.contactInfo {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.address, .phone {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.address:hover, .phone:hover {
+    color: white;
+    transform: translateY(-1px);
+}
+
+.icon {
+    color: white;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Кнопка переключения языка */
+.languageToggle {
+    position: relative;
+}
+
+.languageBtn {
+    background: var(--primary-light);
+    border: none;
+    border-radius: var(--radius);
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.languageBtn:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.languageBtn i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.languageBtn:hover i {
+    transform: rotate(180deg);
+}
+
+/* Выпадающее меню языков */
+.languageDropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-strong);
+    border: 1px solid var(--border-color);
+    min-width: 150px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.languageToggle:hover .languageDropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+
+.languageToggle::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 15px;
+    background: transparent;
+    z-index: 999;
+    pointer-events: none;
+}
+
+.languageToggle:hover::after {
+    pointer-events: auto;
+}
+
+.languageList {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.languageItem {
+    padding: 0;
+}
+
+.languageOption {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: var(--transition);
+    border: none;
+    background: none;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+}
+
+.languageOption:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    padding-left: 20px;
+}
+
+.languageOption.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.languageFlag {
+    width: 20px;
+    height: 15px;
+    border-radius: 2px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/*адаптивность */
+@media (max-width: 768px) {
+    .languageToggle {
+        display: none; 
+    }
+}
+
+/* Версия для слабовидящих */
+.versionContainer {
+    display: flex;
+    align-items: center;
+}
+
+.versionBtn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    transition: var(--transition);
+    backdrop-filter: blur(5px);
+}
+
+.versionBtn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.eyeIcon {
+    font-size: 16px;
+}
+
+/* НИЖНЯЯ ЧАСТЬ ШАПКИ */
+.headerBottom {
+    background-color: var(--white);
+    padding: 15px 0;
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    box-shadow: 0 3px 15px rgba(119, 29, 85, 0.1);
+    border-bottom: 2px solid var(--primary-light);
+}
+
+.headerBottomContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ЛОГОТИП */
+.logoLink {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.logoLink:hover {
+    transform: translateY(-2px);
+}
+
+.logoImage {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.logoImage i {
+    font-size: 32px;
+    color: var(--primary-color);
+    background: var(--primary-light);
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(119, 29, 85, 0.1);
+}
+
+.logoImage span {
+    line-height: 1.2;
+}
+
+/* ГЛАВНОЕ МЕНЮ */
+.mainNav {
+    flex: 1;
+    margin: 0 40px;
+}
+
+.navList {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navItem {
+    position: relative;
+}
+
+.navLink {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 16px;
+    padding: 8px 0;
+    position: relative;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.navLink:hover {
+    color: var(--primary-color);
+}
+
+.navLink::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    transition: var(--transition);
+    border-radius: 3px;
+}
+
+.navLink:hover::after {
+    width: 100%;
+}
+
+/* ЛОГОТИП ПАРТНЕРА */
+.partnerLogo {
+    margin-right: 30px;
+}
+
+.partnerLogoInner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--secondary-color);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.partnerLogoInner:hover {
+    transform: translateY(-2px);
+}
+
+.partnerLogoInner i {
+    font-size: 24px;
+    color: var(--primary-color);
+}
+
+.partnerInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.partnerName {
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.partnerDesc {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+/* КНОПКА ЗАПИСИ */
+.consultationBtn {
+    background: var(--gradient-primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px 25px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition);
+    white-space: nowrap;
+    box-shadow: var(--shadow);
+}
+
+.consultationBtn:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.consultationBtn i {
+    font-size: 16px;
+}
+
+/* КНОПКА МОБИЛЬНОГО МЕНЮ */
+.mobileMenuBtn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 5px;
+    transition: var(--transition);
+}
+
+.mobileMenuBtn:hover {
+    transform: rotate(90deg);
+}
+
+/* Действия в шапке */
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Кнопка темы */
+.themeButton {
+    background: var(--primary-light);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: var(--primary-color);
+    font-size: 18px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(119, 29, 85, 0.1);
+}
+
+.themeButton:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: rotate(30deg) scale(1.1);
+    box-shadow: var(--shadow);
+}
+
+/* Кнопка обратного звонка */
+.callbackButton {
+    background: var(--primary-light);
+    border: none;
+    color: var(--primary-color);
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: var(--radius);
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.callbackButton:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1024px) {
+    .navList {
+        gap: 20px;
+    }
+    
+    .partnerLogo {
+        margin-right: 20px;
+    }
+    
+    .consultationBtn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .headerTopContainer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .contactInfo {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .headerBottomContainer {
+        justify-content: space-between;
+    }
+    
+    .mainNav,
+    .partnerLogo,
+    .consultationBtn,
+    .headerActions {
+        display: none;
+    }
+    
+    .mobileMenuBtn {
+        display: block;
+    }
+    
+    .headerBottom {
+        top: 88px; 
+    }
+}
+
+@media (max-width: 480px) {
+    .logoImage span {
+        font-size: 14px;
+    }
+    
+    .logoImage i {
+        font-size: 24px;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+.userMenu {
+  position: relative;
+}
+
+.userBtn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius);
+  color: white;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
+}
+
+.userBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.userDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-strong);
+  border: 1px solid var(--border-color);
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.userMenu:hover .userDropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: var(--transition);
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdownItem:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.dropdownItem i {
+  width: 20px;
+  color: var(--primary-color);
+}
+
+.loginBtn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius);
+  color: white;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
+}
+
+.loginBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}

@@ -1,0 +1,592 @@
+/* ====================== */
+/* СТИЛИ APPOINTMENT */
+/* ====================== */
+
+.appointment {
+    padding: 100px 0;
+    background-color: var(--white);
+    position: relative;
+}
+
+.appointment::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    background: var(--gradient-light);
+    z-index: 0;
+}
+
+.appointmentContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+    position: relative;
+    z-index: 1;
+}
+
+/* Форма записи */
+.formSection {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-strong);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.formSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--gradient-primary);
+}
+
+.formHeader {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.formTitle {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    position: relative;
+    display: inline-block;
+}
+
+.formTitle::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--gradient-primary);
+    border-radius: 3px;
+}
+
+.formSubtitle {
+    color: var(--text-light);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Форма */
+.appointmentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.formLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.formLabel i {
+    color: var(--primary-color);
+    font-size: 14px;
+    width: 16px;
+    background: var(--primary-light);
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.formInput, .formSelect, .formTextarea {
+    padding: 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    transition: var(--transition);
+    background-color: var(--white);
+    color: var(--text-dark);
+}
+
+.formInput:focus, .formSelect:focus, .formTextarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(119, 29, 85, 0.1);
+    transform: translateY(-1px);
+}
+
+.formSelect {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23771d55' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+
+.formTextarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Чекбокс */
+.formCheckbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 15px 0;
+    padding: 15px;
+    background: var(--primary-light);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+}
+
+.checkboxInput {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+    accent-color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.checkboxLabel {
+    font-size: 14px;
+    color: var(--text-medium);
+    line-height: 1.5;
+    flex: 1;
+}
+
+.privacyLink {
+    color: var(--primary-color);
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.privacyLink:hover {
+    color: var(--primary-hover);
+}
+
+/* Кнопка отправки */
+.submitBtn {
+    background: var(--gradient-primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.submitBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.submitBtn:hover::before {
+    left: 100%;
+}
+
+.submitBtn:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.submitBtn i {
+    font-size: 16px;
+}
+
+/* Информационный блок */
+.infoSection {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.infoCard {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.infoCard:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary-color);
+}
+
+.infoCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gradient-primary);
+}
+
+.infoIcon {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-light);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 24px;
+    margin-bottom: 20px;
+    transition: var(--transition);
+}
+
+.infoCard:hover .infoIcon {
+    background: var(--gradient-primary);
+    color: var(--white);
+    transform: rotate(10deg) scale(1.1);
+}
+
+.infoCard h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+}
+
+/* Телефоны */
+.phoneNumbers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.phoneLink {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.phoneLink:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+    transform: translateX(5px);
+}
+
+.phoneLink i {
+    background: var(--primary-light);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.infoText {
+    color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    padding-left: 45px;
+}
+
+/* График работы */
+.schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.scheduleItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.scheduleItem:hover {
+    border-color: var(--primary-color);
+    padding-left: 5px;
+}
+
+.scheduleItem:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.scheduleItem span:first-child {
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.scheduleItem span:last-child {
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Адрес */
+.address {
+    color: var(--text-dark);
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    padding-left: 45px;
+    position: relative;
+}
+
+.address::before {
+    content: '📍';
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.mapBtn {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 45px;
+}
+
+.mapBtn:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* Список информации */
+.infoList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.infoList li {
+    color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+    padding-left: 25px;
+    transition: var(--transition);
+}
+
+.infoList li:hover {
+    color: var(--text-dark);
+    padding-left: 30px;
+}
+
+.infoList li::before {
+    content: '✓';
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: var(--primary-light);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Декоративные элементы */
+.decorativeDot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    opacity: 0.2;
+    animation: pulse 2s infinite;
+}
+
+.decorativeDot:nth-child(1) {
+    top: 20%;
+    right: 10%;
+}
+
+.decorativeDot:nth-child(2) {
+    bottom: 30%;
+    left: 5%;
+    animation-delay: 1s;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.2;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.4;
+    }
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1024px) {
+    .appointmentContainer {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .formRow {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .appointment {
+        padding: 60px 0;
+    }
+    
+    .formSection, .infoCard {
+        padding: 25px;
+    }
+    
+    .formTitle {
+        font-size: 28px;
+    }
+    
+    .infoSection {
+        gap: 20px;
+    }
+    
+    .decorativeDot {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .formRow {
+        grid-template-columns: 1fr;
+    }
+    
+    .submitBtn {
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+    
+    .phoneLink {
+        font-size: 16px;
+    }
+    
+    .address {
+        padding-left: 35px;
+        font-size: 14px;
+    }
+    
+    .mapBtn {
+        margin-left: 35px;
+        width: calc(100% - 35px);
+        justify-content: center;
+    }
+}
+
+/* Темная тема */
+[data-theme="dark"] .appointment::before {
+    background: var(--gradient-light);
+}
+
+[data-theme="dark"] .formSection,
+[data-theme="dark"] .infoCard {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .formInput,
+[data-theme="dark"] .formSelect,
+[data-theme="dark"] .formTextarea {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .formCheckbox {
+    background: var(--primary-light);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .infoIcon {
+    background: var(--primary-light);
+}
+
+[data-theme="dark"] .phoneLink i {
+    background: var(--primary-light);
+}

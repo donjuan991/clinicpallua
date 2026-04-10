@@ -1,0 +1,555 @@
+/* ====================== */
+/* СТИЛИ MOBILE MENU */
+/* ====================== */
+
+.mobileMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2000;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Кнопка языка в мобильном меню */
+.menuLanguage {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.menuLanguageTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menuLanguageTitle i {
+    color: var(--primary-color);
+}
+
+.menuLanguageButtons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.menuLanguageBtn {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
+.menuLanguageBtn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.menuLanguageBtn.active {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.menuLanguageFlag {
+    width: 20px;
+    height: 15px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+/* Затемнение фона */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+/* Контент меню */
+.menuContent {
+    position: relative;
+    width: 320px;
+    background-color: var(--white);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+    box-shadow: -5px 0 25px rgba(119, 29, 85, 0.2);
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Шапка меню */
+.menuHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: var(--gradient-primary);
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+.menuHeader::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+}
+
+.menuLogo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.menuLogo i {
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeBtn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: var(--white);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    transition: var(--transition);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(5px);
+}
+
+.closeBtn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Основное меню */
+.menuNav {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.menuList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menuItem {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.menuLink {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.menuLink:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    padding-left: 25px;
+}
+
+.menuLink i:first-child {
+    width: 24px;
+    font-size: 18px;
+    margin-right: 15px;
+    color: var(--primary-color);
+}
+
+.menuLink span {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.menuLink i:last-child {
+    color: var(--text-light);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.menuLink:hover i:last-child {
+    color: var(--primary-color);
+    transform: translateX(3px);
+}
+
+/* Контакты в меню */
+.menuContacts {
+    padding: 20px;
+    background-color: var(--primary-light);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.contactsTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.contactsTitle i {
+    color: var(--primary-color);
+}
+
+.contactsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contactItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--transition);
+    padding: 5px 0;
+}
+
+.contactItem:hover {
+    color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.contactItem i {
+    width: 20px;
+    color: var(--primary-color);
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* Кнопки действий */
+.menuActions {
+    display: flex;
+    gap: 10px;
+    padding: 20px;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.callBtn, .appointmentBtn {
+    flex: 1;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.callBtn {
+    background: var(--gradient-primary);
+    color: var(--white);
+    box-shadow: var(--shadow);
+}
+
+.callBtn:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.appointmentBtn {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.appointmentBtn:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* Социальные сети */
+.menuSocial {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.socialTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.socialTitle i {
+    color: var(--primary-color);
+}
+
+.socialLinks {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.socialLink {
+    width: 45px;
+    height: 45px;
+    background-color: var(--primary-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 18px;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.socialLink:hover {
+    background: var(--gradient-primary);
+    color: var(--white);
+    transform: translateY(-3px) rotate(5deg);
+    box-shadow: var(--shadow);
+}
+
+.themeToggle {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.themeToggleBtn {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-light);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.themeToggleBtn:hover {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.themeToggleBtn i {
+    font-size: 16px;
+}
+
+/* Версия для слабовидящих */
+.accessibility {
+    padding: 20px;
+    background-color: var(--primary-light);
+}
+
+.accessibilityBtn {
+    width: 100%;
+    padding: 12px;
+    background: none;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--radius);
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.accessibilityBtn:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 480px) {
+    .menuContent {
+        width: 100%;
+    }
+    
+    .menuActions {
+        flex-direction: column;
+    }
+}
+
+.menuUser {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: var(--gradient-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.userAvatar {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: white;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userName {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.userEmail {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Ссылки авторизации в мобильном меню */
+.menuAuthLinks {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.authLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: var(--transition);
+  font-size: 14px;
+}
+
+.authLink:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  padding-left: 25px;
+}
+
+.authLink i {
+  width: 20px;
+  color: var(--primary-color);
+}
+
+.logoutLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #dc3545;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 14px;
+  text-align: left;
+}
+
+.logoutLink:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  padding-left: 25px;
+}
+
+.logoutLink i {
+  width: 20px;
+  color: #dc3545;
+}

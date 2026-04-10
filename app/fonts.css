@@ -1,0 +1,27 @@
+@font-face {
+  font-family: 'Muller-Regular';
+  src: url('https://fonts.cdnfonts.com/s/14019/MullerRegular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Muller-Medium';
+  src: url('https://fonts.cdnfonts.com/s/14019/MullerMedium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Muller-Bold';
+  src: url('https://fonts.cdnfonts.com/s/14019/MullerBold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Muller-ExtraBold';
+  src: url('https://fonts.cdnfonts.com/s/14019/MullerExtraBold.woff') format('woff');
+  font-weight: 800;
+  font-style: normal;
+}

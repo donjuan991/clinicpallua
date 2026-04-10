@@ -1,0 +1,256 @@
+/* ====================== */
+/* СТИЛИ ARTICLES*/
+/* ====================== */
+
+.articles {
+    padding: 100px 0;
+    background-color: var(--gray-bg);
+}
+
+/* Сетка статей */
+.articlesGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+/* Карточка статьи */
+.articleCard {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.articleCard:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Изображение статьи */
+.articleImage {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+}
+
+.imageContent {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 80px;
+}
+
+.articleCategory {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: var(--white);
+    color: var(--text-dark);
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Контент статьи */
+.articleContent {
+    padding: 25px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.articleMeta {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.articleDate, .articleReadTime {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.articleDate i, .articleReadTime i {
+    font-size: 12px;
+}
+
+.articleTitle {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.articleLink {
+    color: inherit;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.articleLink:hover {
+    color: var(--primary-blue);
+}
+
+.articleExcerpt {
+    color: var(--text-light);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+/* Теги статьи */
+.articleTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.tag {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Футер статьи */
+.articleFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.readMoreBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-blue);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.readMoreBtn:hover {
+    color: var(--primary-hover);
+    gap: 12px;
+}
+
+.readMoreBtn i {
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+.bookmarkBtn {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    transition: var(--transition);
+}
+
+.bookmarkBtn:hover {
+    color: var(--primary-blue);
+}
+
+/* Кнопка всех статей */
+.allArticles {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.allArticlesBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    padding: 15px 30px;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.allArticlesBtn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.allArticlesBtn i {
+    font-size: 16px;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1024px) {
+    .articlesGrid {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+        margin: 0 auto 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .articles {
+        padding: 60px 0;
+    }
+    
+    .articleImage {
+        height: 180px;
+    }
+    
+    .imageContent {
+        font-size: 60px;
+    }
+    
+    .articleContent {
+        padding: 20px;
+    }
+    
+    .articleTitle {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .articleMeta {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .articleFooter {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .allArticlesBtn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+}
