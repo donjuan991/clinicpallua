@@ -1,10 +1,10 @@
 // app/api/auth/me/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { query } from '../../../lib/db';
+import { NextResponse } from 'next/server';
+import { query } from '@/app/lib/db';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_SECRET = process.env.JWT_SECRET || 'pallua_clinic_secret_key_2025';
 
 export async function GET() {
   try {
@@ -18,7 +18,7 @@ export async function GET() {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
 
     const users = await query<any[]>(
-      'SELECT id, email, name, phone, role FROM users WHERE id = ?',
+      'SELECT id, email, name, phone, role FROM users WHERE id = $1',
       [decoded.id]
     );
 
@@ -28,6 +28,7 @@ export async function GET() {
 
     return NextResponse.json({ user: users[0] });
   } catch (error) {
+    console.error('Me error:', error);
     return NextResponse.json({ user: null });
   }
 }

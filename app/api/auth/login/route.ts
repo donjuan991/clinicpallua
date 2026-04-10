@@ -1,21 +1,25 @@
 // app/api/auth/login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '../../../lib/db';
+import { query } from '@/app/lib/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_SECRET = process.env.JWT_SECRET || 'pallua_clinic_secret_key_2025';
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
-    // Поиск пользователя
+    console.log('Login attempt for:', email);
+
+    // Поиск пользователя - ВАЖНО: используем $1 вместо ?
     const users = await query<any[]>(
-      'SELECT id, email, password_hash, name, phone, role FROM users WHERE email = ?',
+      'SELECT id, email, password_hash, name, phone, role FROM users WHERE email = $1',
       [email]
     );
+
+    console.log('Users found:', users.length);
 
     if (users.length === 0) {
       return NextResponse.json(
@@ -28,6 +32,8 @@ export async function POST(request: NextRequest) {
 
     // Проверка пароля
     const isValid = await bcrypt.compare(password, user.password_hash);
+    console.log('Password valid:', isValid);
+
     if (!isValid) {
       return NextResponse.json(
         { error: 'Неверный email или пароль' },
@@ -42,7 +48,7 @@ export async function POST(request: NextRequest) {
       { expiresIn: '7d' }
     );
 
-    // Установка cookie - ДОБАВЛЕН await
+    // Установка cookie
     const cookieStore = await cookies();
     cookieStore.set('auth_token', token, {
       httpOnly: true,
@@ -65,7 +71,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Ошибка при входе' },
+      { error: 'Ошибка при входе: ' + String(error) },
       { status: 500 }
     );
   }
