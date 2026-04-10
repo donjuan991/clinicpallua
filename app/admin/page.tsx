@@ -23,6 +23,7 @@ interface Service {
   duration: number;
   category: string;
   is_active: boolean;
+  order_index: number;
 }
 
 interface Appointment {
@@ -94,7 +95,6 @@ const AdminPage = () => {
     const data = await res.json();
     if (data.appointments) {
       setAppointments(data.appointments);
-      // Расчет статистики
       const total = data.appointments.length;
       const pending = data.appointments.filter((a: any) => a.status === 'pending').length;
       const confirmed = data.appointments.filter((a: any) => a.status === 'confirmed').length;
@@ -114,6 +114,188 @@ const AdminPage = () => {
     const res = await fetch('/api/admin/services');
     const data = await res.json();
     if (data.services) setServices(data.services);
+  };
+
+  // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВРАЧАМИ ==========
+  
+  const handleAddDoctor = async () => {
+    const name = prompt('Введите ФИО врача:');
+    if (!name) return;
+    
+    const specialization = prompt('Введите специализацию:');
+    if (!specialization) return;
+    
+    const description = prompt('Введите описание (необязательно):') || '';
+    const experience = parseInt(prompt('Введите опыт работы (лет):') || '0');
+    
+    try {
+      const res = await fetch('/api/admin/doctors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name, 
+          specialization, 
+          description, 
+          experience,
+          rating: 0,
+          isActive: true,
+          orderIndex: doctors.length + 1
+        })
+      });
+      
+      if (res.ok) {
+        alert('Врач успешно добавлен!');
+        fetchDoctors();
+      } else {
+        const error = await res.json();
+        alert('Ошибка: ' + (error.error || 'Не удалось добавить врача'));
+      }
+    } catch (error) {
+      alert('Ошибка при добавлении врача');
+    }
+  };
+
+  const handleEditDoctor = async (doctor: Doctor) => {
+    const newName = prompt('Новое ФИО:', doctor.name);
+    if (!newName) return;
+    
+    const newSpecialization = prompt('Новая специализация:', doctor.specialization);
+    if (!newSpecialization) return;
+    
+    try {
+      const res = await fetch('/api/admin/doctors', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: doctor.id,
+          name: newName,
+          specialization: newSpecialization,
+          description: doctor.description,
+          experience: doctor.experience,
+          rating: doctor.rating,
+          isActive: doctor.is_active,
+          orderIndex: doctor.order_index
+        })
+      });
+      
+      if (res.ok) {
+        alert('Данные врача обновлены!');
+        fetchDoctors();
+      } else {
+        alert('Ошибка при обновлении');
+      }
+    } catch (error) {
+      alert('Ошибка при обновлении');
+    }
+  };
+
+  const handleDeleteDoctor = async (id: number, name: string) => {
+    if (!confirm(`Удалить врача "${name}"?`)) return;
+    
+    try {
+      const res = await fetch(`/api/admin/doctors?id=${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (res.ok) {
+        alert('Врач удален!');
+        fetchDoctors();
+      } else {
+        alert('Ошибка при удалении');
+      }
+    } catch (error) {
+      alert('Ошибка при удалении');
+    }
+  };
+
+  // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С УСЛУГАМИ ==========
+
+  const handleAddService = async () => {
+    const name = prompt('Введите название услуги:');
+    if (!name) return;
+    
+    const price = parseInt(prompt('Введите цену (в рублях):') || '0');
+    const category = prompt('Введите категорию (consultation/face-surgery/body-surgery/breast-surgery/non-surgical):') || 'consultation';
+    const duration = parseInt(prompt('Введите длительность (в минутах):') || '60');
+    const description = prompt('Введите описание (необязательно):') || '';
+    
+    try {
+      const res = await fetch('/api/admin/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          description,
+          price,
+          duration,
+          category,
+          isActive: true,
+          orderIndex: services.length + 1
+        })
+      });
+      
+      if (res.ok) {
+        alert('Услуга успешно добавлена!');
+        fetchServices();
+      } else {
+        const error = await res.json();
+        alert('Ошибка: ' + (error.error || 'Не удалось добавить услугу'));
+      }
+    } catch (error) {
+      alert('Ошибка при добавлении услуги');
+    }
+  };
+
+  const handleEditService = async (service: Service) => {
+    const newName = prompt('Новое название:', service.name);
+    if (!newName) return;
+    
+    const newPrice = parseInt(prompt('Новая цена:', String(service.price)) || '0');
+    
+    try {
+      const res = await fetch('/api/admin/services', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: service.id,
+          name: newName,
+          description: service.description,
+          price: newPrice,
+          duration: service.duration,
+          category: service.category,
+          isActive: service.is_active,
+          orderIndex: service.order_index
+        })
+      });
+      
+      if (res.ok) {
+        alert('Услуга обновлена!');
+        fetchServices();
+      } else {
+        alert('Ошибка при обновлении');
+      }
+    } catch (error) {
+      alert('Ошибка при обновлении');
+    }
+  };
+
+  const handleDeleteService = async (id: number, name: string) => {
+    if (!confirm(`Удалить услугу "${name}"?`)) return;
+    
+    try {
+      const res = await fetch(`/api/admin/services?id=${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (res.ok) {
+        alert('Услуга удалена!');
+        fetchServices();
+      } else {
+        alert('Ошибка при удалении');
+      }
+    } catch (error) {
+      alert('Ошибка при удалении');
+    }
   };
 
   const updateAppointmentStatus = async (id: number, status: string) => {
@@ -256,7 +438,6 @@ const AdminPage = () => {
             {/* Записи */}
             {activeTab === 'appointments' && (
               <div>
-                {/* Фильтры */}
                 <div className={styles.filters}>
                   <select
                     value={filters.status}
@@ -387,7 +568,7 @@ const AdminPage = () => {
             {/* Врачи */}
             {activeTab === 'doctors' && (
               <div className={styles.doctorsList}>
-                <button className={styles.addBtn}>
+                <button className={styles.addBtn} onClick={handleAddDoctor}>
                   <i className="fas fa-plus"></i>
                   Добавить врача
                 </button>
@@ -421,11 +602,11 @@ const AdminPage = () => {
                         </div>
                       </div>
                       <div className={styles.doctorActions}>
-                        <button className={styles.editBtn}>
+                        <button className={styles.editBtn} onClick={() => handleEditDoctor(doctor)}>
                           <i className="fas fa-edit"></i>
                           Редактировать
                         </button>
-                        <button className={styles.deleteBtn}>
+                        <button className={styles.deleteBtn} onClick={() => handleDeleteDoctor(doctor.id, doctor.name)}>
                           <i className="fas fa-trash"></i>
                           Удалить
                         </button>
@@ -439,7 +620,7 @@ const AdminPage = () => {
             {/* Услуги */}
             {activeTab === 'services' && (
               <div className={styles.servicesList}>
-                <button className={styles.addBtn}>
+                <button className={styles.addBtn} onClick={handleAddService}>
                   <i className="fas fa-plus"></i>
                   Добавить услугу
                 </button>
@@ -469,10 +650,10 @@ const AdminPage = () => {
                           </td>
                           <td>
                             <div className={styles.actions}>
-                              <button className={styles.editBtn} title="Редактировать">
+                              <button className={styles.editBtn} onClick={() => handleEditService(service)}>
                                 <i className="fas fa-edit"></i>
                               </button>
-                              <button className={styles.deleteBtn} title="Удалить">
+                              <button className={styles.deleteBtn} onClick={() => handleDeleteService(service.id, service.name)}>
                                 <i className="fas fa-trash"></i>
                               </button>
                             </div>
@@ -480,7 +661,7 @@ const AdminPage = () => {
                         </tr>
                       ))}
                     </tbody>
-                   </table>
+                  </table>
                 </div>
               </div>
             )}
