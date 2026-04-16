@@ -3,93 +3,117 @@
 import React, { useState } from 'react';
 import styles from './Specialists.module.css';
 import AppointmentModal from './AppointmentModal';
+import DoctorDetailsModal from './DoctorDetailsModal';
+
+interface Doctor {
+    id: number;
+    name: string;
+    position: string;
+    experience: string;
+    education: string;
+    specialty: string[];
+    imageColor: string;
+    rating: number;
+    certifications: string[];
+}
 
 const Specialists = () => {
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
-    const [selectedDoctor, setSelectedDoctor] = useState('');
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
 
-    const specialists = [
-    {
-        id: 1,
-        name: 'Профессор Н. Паллуа',
-        position: 'Главный пластический хирург, Доктор медицинских наук',
-        experience: '30+ лет',
-        education: 'Европейская ассоциация пластических хирургов (ФЕБОПРАС), Высшая категория',
-        specialty: ['Пластическая хирургия лица', 'Реконструктивная хирургия', 'Эстетическая хирургия тела', 'Коррекция осложнений'],
-        imageColor: '#771d55',
-        rating: 5.0,
-        certifications: ['ФЕБОПРАС', 'ISAPS', 'РФХ']
-    },
-    {
-        id: 2,
-        name: 'Доктор Мария Делакур',
-        position: 'Пластический хирург, эксперт по эстетике лица',
-        experience: '15 лет',
-        education: 'Университет Париж Декарт, Франция, Сертификат ФЕБОПРАС',
-        specialty: ['Ринопластика', 'Блефаропластика', 'SMAS-подтяжка лица', 'Липофилинг'],
-        imageColor: '#9d4b7c',
-        rating: 4.9,
-        certifications: ['ФЕБОПРАС', 'SOFCEP']
-    },
-    {
-        id: 3,
-        name: 'Доктор Ханс Мюллер',
-        position: 'Пластический хирург, специалист по реконструкции',
-        experience: '12 лет',
-        education: 'Шарите - Медицинский университет Берлина, Германия',
-        specialty: ['Реконструктивная хирургия груди', 'Удаление имплантов', 'Коррекция рубцов', 'Посттравматическая реконструкция'],
-        imageColor: '#631846',
-        rating: 4.9,
-        certifications: ['ФЕБОПРАС', 'DGPRÄC', 'EURAPS']
-    },
-    {
-        id: 4,
-        name: 'Доктор Анна Вольф',
-        position: 'Эстетический хирург, специалист по телу',
-        experience: '10 лет',
-        education: 'Венский медицинский университет, Австрия',
-        specialty: ['Маммопластика', 'Абдоминопластика', 'Липосакция', 'Контурная пластика тела'],
-        imageColor: '#b56a9d',
-        rating: 4.8,
-        certifications: ['ФЕБОПРАС', 'ÖGPÄC']
-    },
-    {
-        id: 5,
-        name: 'Доктор Луиджи Росси',
-        position: 'Пластический хирург, эксперт по мужской эстетике',
-        experience: '8 лет',
-        education: 'Миланский университет, Италия',
-        specialty: ['Мужская пластическая хирургия', 'Коррекция гинекомастии', 'Липосакция у мужчин', 'Омоложение'],
-        imageColor: '#1979FF',
-        rating: 4.8,
-        certifications: ['ФЕБОПРАС', 'SICPRE']
-    },
-    {
-        id: 7,
-        name: 'Доктор Джеймс Картер',
-        position: 'Анестезиолог-реаниматолог',
-        experience: '20 лет',
-        education: 'Кембриджский университет, Великобритания, Доктор наук',
-        specialty: ['Анестезия в пластической хирургии', 'Интенсивная терапия', 'Обезболивание', 'Медицинская реабилитация'],
-        imageColor: '#4e1337',
-        rating: 5.0,
-        certifications: ['ФЕБОПРАС', 'RCA']
-    },
-    {
-        id: 8,
-        name: 'Доктор Эмили Чен',
-        position: 'Косметолог-дерматолог',
-        experience: '8 лет',
-        education: 'Гарвардская медицинская школа, США',
-        specialty: ['Инъекционная косметология', 'Лазерные процедуры', 'Эстетическая дерматология', 'Аппаратные методики'],
-        imageColor: '#8a3a6a',
-        rating: 4.9,
-        certifications: ['AAD', 'ASDS']
-    }
-];
+    const specialists: Doctor[] = [
+        {
+            id: 1,
+            name: 'Профессор Н. Паллуа',
+            position: 'Главный пластический хирург, Доктор медицинских наук',
+            experience: '30+ лет',
+            education: 'Европейская ассоциация пластических хирургов (ФЕБОПРАС), Высшая категория',
+            specialty: ['Пластическая хирургия лица', 'Реконструктивная хирургия', 'Эстетическая хирургия тела', 'Коррекция осложнений'],
+            imageColor: '#771d55',
+            rating: 5.0,
+            certifications: ['ФЕБОПРАС', 'ISAPS', 'РФХ']
+        },
+        {
+            id: 2,
+            name: 'Доктор Мария Делакур',
+            position: 'Пластический хирург, эксперт по эстетике лица',
+            experience: '15 лет',
+            education: 'Университет Париж Декарт, Франция, Сертификат ФЕБОПРАС',
+            specialty: ['Ринопластика', 'Блефаропластика', 'SMAS-подтяжка лица', 'Липофилинг'],
+            imageColor: '#9d4b7c',
+            rating: 4.9,
+            certifications: ['ФЕБОПРАС', 'SOFCEP']
+        },
+        {
+            id: 3,
+            name: 'Доктор Ханс Мюллер',
+            position: 'Пластический хирург, специалист по реконструкции',
+            experience: '12 лет',
+            education: 'Шарите - Медицинский университет Берлина, Германия',
+            specialty: ['Реконструктивная хирургия груди', 'Удаление имплантов', 'Коррекция рубцов', 'Посттравматическая реконструкция'],
+            imageColor: '#631846',
+            rating: 4.9,
+            certifications: ['ФЕБОПРАС', 'DGPRÄC', 'EURAPS']
+        },
+        {
+            id: 4,
+            name: 'Доктор Анна Вольф',
+            position: 'Эстетический хирург, специалист по телу',
+            experience: '10 лет',
+            education: 'Венский медицинский университет, Австрия',
+            specialty: ['Маммопластика', 'Абдоминопластика', 'Липосакция', 'Контурная пластика тела'],
+            imageColor: '#b56a9d',
+            rating: 4.8,
+            certifications: ['ФЕБОПРАС', 'ÖGPÄC']
+        },
+        {
+            id: 5,
+            name: 'Доктор Луиджи Росси',
+            position: 'Пластический хирург, эксперт по мужской эстетике',
+            experience: '8 лет',
+            education: 'Миланский университет, Италия',
+            specialty: ['Мужская пластическая хирургия', 'Коррекция гинекомастии', 'Липосакция у мужчин', 'Омоложение'],
+            imageColor: '#1979FF',
+            rating: 4.8,
+            certifications: ['ФЕБОПРАС', 'SICPRE']
+        },
+        {
+            id: 7,
+            name: 'Доктор Джеймс Картер',
+            position: 'Анестезиолог-реаниматолог',
+            experience: '20 лет',
+            education: 'Кембриджский университет, Великобритания, Доктор наук',
+            specialty: ['Анестезия в пластической хирургии', 'Интенсивная терапия', 'Обезболивание', 'Медицинская реабилитация'],
+            imageColor: '#4e1337',
+            rating: 5.0,
+            certifications: ['ФЕБОПРАС', 'RCA']
+        },
+        {
+            id: 8,
+            name: 'Доктор Эмили Чен',
+            position: 'Косметолог-дерматолог',
+            experience: '8 лет',
+            education: 'Гарвардская медицинская школа, США',
+            specialty: ['Инъекционная косметология', 'Лазерные процедуры', 'Эстетическая дерматология', 'Аппаратные методики'],
+            imageColor: '#8a3a6a',
+            rating: 4.9,
+            certifications: ['AAD', 'ASDS']
+        }
+    ];
 
-    const handleAppointmentClick = (doctorName: string) => {
-        setSelectedDoctor(doctorName);
+    const handleAppointmentClick = (doctor: Doctor) => {
+        setSelectedDoctor(doctor);
+        setIsAppointmentModalOpen(true);
+    };
+
+    const handleDetailsClick = (doctor: Doctor) => {
+        setSelectedDoctor(doctor);
+        setIsDetailsModalOpen(true);
+    };
+
+    const handleAppointmentFromDetails = () => {
+        setIsDetailsModalOpen(false);
         setIsAppointmentModalOpen(true);
     };
 
@@ -144,11 +168,16 @@ const Specialists = () => {
                             <div className={styles.specialties}>
                                 <h4>Специализация:</h4>
                                 <div className={styles.specialtyTags}>
-                                    {doctor.specialty.map((spec, index) => (
+                                    {doctor.specialty.slice(0, 3).map((spec, index) => (
                                         <span key={index} className={styles.specialtyTag}>
                                             {spec}
                                         </span>
                                     ))}
+                                    {doctor.specialty.length > 3 && (
+                                        <span className={styles.specialtyTag}>
+                                            +{doctor.specialty.length - 3}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                             
@@ -156,12 +185,15 @@ const Specialists = () => {
                             <div className={styles.cardActions}>
                                 <button 
                                     className={styles.appointmentBtn}
-                                    onClick={() => handleAppointmentClick(doctor.name)}
+                                    onClick={() => handleAppointmentClick(doctor)}
                                 >
                                     <i className="fas fa-calendar-alt"></i>
                                     Записаться
                                 </button>
-                                <button className={styles.detailsBtn}>
+                                <button 
+                                    className={styles.detailsBtn}
+                                    onClick={() => handleDetailsClick(doctor)}
+                                >
                                     <i className="fas fa-info-circle"></i>
                                     Подробнее
                                 </button>
@@ -194,8 +226,22 @@ const Specialists = () => {
             {/* Модальное окно записи */}
             <AppointmentModal 
                 isOpen={isAppointmentModalOpen}
-                onClose={() => setIsAppointmentModalOpen(false)}
-                initialDoctor={selectedDoctor}
+                onClose={() => {
+                    setIsAppointmentModalOpen(false);
+                    setSelectedDoctor(null);
+                }}
+                initialDoctor={selectedDoctor?.name || ''}
+            />
+
+            {/* Модальное окно с подробной информацией */}
+            <DoctorDetailsModal 
+                isOpen={isDetailsModalOpen}
+                onClose={() => {
+                    setIsDetailsModalOpen(false);
+                    setSelectedDoctor(null);
+                }}
+                onAppointment={handleAppointmentFromDetails}
+                doctor={selectedDoctor}
             />
         </section>
     );

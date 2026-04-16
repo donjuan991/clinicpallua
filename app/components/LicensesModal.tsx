@@ -311,30 +311,6 @@ const LicensesModal: React.FC<LicensesModalProps> = ({ isOpen, onClose }) => {
                             </div>
                         </div>
 
-                        <div className={styles.verificationBlock}>
-                            <h4><i className="fas fa-search"></i> Проверка подлинности</h4>
-                            <div className={styles.verificationInfo}>
-                                <p>Все лицензии можно проверить на официальных ресурсах:</p>
-                                <div className={styles.verificationLinks}>
-                                    <a href="#" className={styles.verifyLink}>
-                                        <i className="fas fa-external-link-alt"></i>
-                                        Росздравнадзор
-                                    </a>
-                                    <a href="#" className={styles.verifyLink}>
-                                        <i className="fas fa-external-link-alt"></i>
-                                        Минздрав РФ
-                                    </a>
-                                    <a href="#" className={styles.verifyLink}>
-                                        <i className="fas fa-external-link-alt"></i>
-                                        ФРМР
-                                    </a>
-                                </div>
-                                <p className={styles.verificationNote}>
-                                    <i className="fas fa-info-circle"></i>
-                                    Для проверки используйте номер лицензии, указанный на этой странице
-                                </p>
-                            </div>
-                        </div>
 
                         <div className={styles.updateInfo}>
                             <p><i className="fas fa-sync-alt"></i> Информация актуальна на январь 2025 года</p>
@@ -343,15 +319,11 @@ const LicensesModal: React.FC<LicensesModalProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className={styles.modalFooter}>
-                    <button className={styles.downloadButton}>
-                        <i className="fas fa-download"></i>
-                        Скачать копии
-                    </button>
-                    <button className={styles.agreeButton} onClick={onClose}>
-                        <i className="fas fa-check"></i>
-                        Закрыть
-                    </button>
-                </div>
+  <button className={styles.agreeButton} onClick={onClose}>
+    <i className="fas fa-check"></i>
+    Закрыть
+  </button>
+</div>
             </div>
         </div>
     );

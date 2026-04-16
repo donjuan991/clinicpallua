@@ -1,9 +1,9 @@
-// app/api/auth/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { sendEmail, getRegistrationEmailTemplate, getAdminNotificationTemplate } from '@/app/lib/email';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'pallua_clinic_secret_key_2025';
 
@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
 
     // Хеширование пароля
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('Password hashed');
 
     // Создание пользователя
     const result = await query<any>(
@@ -36,11 +35,11 @@ export async function POST(request: NextRequest) {
       [email, hashedPassword, name, phone || null, 'patient']
     );
 
-    console.log('User created with id:', result[0].id);
+    const userId = result[0].id;
 
     // Создание JWT токена
     const token = jwt.sign(
-      { id: result[0].id, email, role: 'patient' },
+      { id: userId, email, role: 'patient' },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -55,9 +54,36 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
+    // Отправка приветственного письма пользователю
+    if (email) {
+      sendEmail(
+        email,
+        'Добро пожаловать в Клинику Паллуа',
+        getRegistrationEmailTemplate({ name, email })
+      ).catch(e => console.error('Failed to send welcome email:', e));
+      
+      // Уведомление админу
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (adminEmail) {
+        sendEmail(
+          adminEmail,
+          'Новый пользователь зарегистрирован',
+          getAdminNotificationTemplate({
+            type: 'new_user',
+            details: {
+              'Имя': name,
+              'Email': email,
+              'Телефон': phone || 'Не указан',
+              'Дата': new Date().toLocaleString('ru-RU'),
+            }
+          })
+        ).catch(e => console.error('Failed to send admin notification:', e));
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      user: { id: result[0].id, email, name, role: 'patient' }
+      user: { id: userId, email, name, role: 'patient' }
     });
   } catch (error) {
     console.error('Registration error:', error);

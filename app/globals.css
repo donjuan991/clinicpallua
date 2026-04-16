@@ -400,3 +400,140 @@ body:has(.accessibility-panel) {
 .high-contrast .navLink {
     padding: 12px 20px !important;
 }
+
+/* ====================== */
+/* Cкролл анимации */
+/* ====================== */
+.scroll-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: var(--gradient-primary, linear-gradient(135deg, #771d55, #9a366e));
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(119, 29, 85, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.scroll-to-top:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(119, 29, 85, 0.4);
+  background: linear-gradient(135deg, #9a366e, #771d55);
+}
+
+.scroll-to-top i {
+  color: white;
+  font-size: 22px;
+}
+
+/* Анимации при скролле */
+section {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+section.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Разные направления анимации */
+.hero,
+.about,
+.specialists {
+  transform: translateY(30px);
+}
+
+.why-us,
+.reviews,
+.testimonials {
+  transform: translateY(40px);
+}
+
+.diseases-methods,
+.articles,
+.contact-form {
+  transform: translateY(30px);
+}
+
+/* Анимация для карточек */
+.doctor-card,
+.service-card,
+.review-card,
+.article-card {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.animate-in .doctor-card,
+.animate-in .service-card,
+.animate-in .review-card,
+.animate-in .article-card {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Задержки для карточек */
+.doctor-card:nth-child(1) { transition-delay: 0.1s; }
+.doctor-card:nth-child(2) { transition-delay: 0.2s; }
+.doctor-card:nth-child(3) { transition-delay: 0.3s; }
+.doctor-card:nth-child(4) { transition-delay: 0.4s; }
+.doctor-card:nth-child(5) { transition-delay: 0.5s; }
+.doctor-card:nth-child(6) { transition-delay: 0.6s; }
+
+/* Темная тема для кнопки скролла */
+[data-theme="dark"] .scroll-to-top {
+  background: linear-gradient(135deg, #9a366e, #c44e8c);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Режим высокого контраста */
+.high-contrast .scroll-to-top {
+  background: #000;
+  border: 3px solid #fff;
+  color: #fff;
+}
+
+/* Скрытие изображений для accessibility */
+.hide-images img {
+  opacity: 0.1;
+  transition: opacity 0.3s;
+}
+
+.hide-images img:hover {
+  opacity: 1;
+}
+
+/* Увеличенные интервалы */
+.letter-spacing {
+  letter-spacing: 0.12em !important;
+}
+
+.line-height {
+  line-height: 2 !important;
+}
+
+.grayscale {
+  filter: grayscale(1) !important;
+}
+
+@media (max-width: 768px) {
+  .scroll-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+  }
+}

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/db';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { sendEmail, getAppointmentEmailTemplate, getAdminNotificationTemplate } from '@/app/lib/email';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'pallua_clinic_secret_key_2025';
 
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
         const decoded = jwt.verify(token, JWT_SECRET) as any;
         userId = decoded.id;
         userRole = decoded.role;
-      } catch (e) {}
+      } catch (e) {
+      }
     }
 
     let appointments;
@@ -75,7 +77,23 @@ export async function POST(request: NextRequest) {
       comment
     } = body;
 
-    console.log('Creating appointment:', { patientName, patientPhone, doctorId, appointmentDate, appointmentTime });
+    console.log('Creating appointment:', { 
+      patientName, 
+      patientPhone, 
+      patientEmail,
+      doctorId, 
+      serviceId,
+      appointmentDate, 
+      appointmentTime 
+    });
+
+    // Проверка обязательных полей
+    if (!patientName || !patientPhone || !doctorId || !appointmentDate || !appointmentTime) {
+      return NextResponse.json(
+        { error: 'Не все обязательные поля заполнены' },
+        { status: 400 }
+      );
+    }
 
     // Проверка, что слот свободен
     const existing = await query<any[]>(
@@ -87,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     if (existing.length > 0) {
       return NextResponse.json(
-        { error: 'Это время уже занято' },
+        { error: 'Это время уже занято. Пожалуйста, выберите другое время.' },
         { status: 400 }
       );
     }
@@ -101,10 +119,11 @@ export async function POST(request: NextRequest) {
       try {
         const decoded = jwt.verify(token, JWT_SECRET) as any;
         userId = decoded.id;
-      } catch (e) {}
+      } catch (e) {
+      }
     }
 
-    // Создаем запись (PostgreSQL синтаксис)
+    // Создаем запись
     const result = await query<any>(
       `INSERT INTO appointments 
        (user_id, patient_name, patient_phone, patient_email, doctor_id, service_id, appointment_date, appointment_time, comment, status)
@@ -124,17 +143,244 @@ export async function POST(request: NextRequest) {
       ]
     );
 
-    console.log('Appointment created with id:', result[0].id);
+    const appointmentId = result[0].id;
+    console.log('Appointment created with id:', appointmentId);
+
+    // Получаем информацию о враче и услуге для email
+    let doctorName = 'Не указан';
+    let serviceName: string | null = null;
+
+    try {
+      const doctorInfo = await query<any[]>(
+        'SELECT name FROM doctors WHERE id = $1',
+        [doctorId]
+      );
+      doctorName = doctorInfo[0]?.name || 'Не указан';
+    } catch (e) {
+      console.error('Error fetching doctor info:', e);
+    }
+
+    if (serviceId) {
+      try {
+        const serviceInfo = await query<any[]>(
+          'SELECT name FROM services WHERE id = $1',
+          [serviceId]
+        );
+        serviceName = serviceInfo[0]?.name || null;
+      } catch (e) {
+        console.error('Error fetching service info:', e);
+      }
+    }
+
+    
+    // 1. Письмо пациенту
+    if (patientEmail) {
+      sendEmail(
+        patientEmail,
+        'Ваша запись в Клинику Паллуа',
+        getAppointmentEmailTemplate({
+          patientName,
+          doctorName,
+          serviceName: serviceName || undefined,
+          date: appointmentDate,
+          time: appointmentTime,
+          status: 'pending'
+        })
+      ).catch(e => console.error('Failed to send appointment email to patient:', e));
+    }
+
+    // 2. Уведомление администратору
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      const details: Record<string, string> = {
+        'Пациент': patientName,
+        'Телефон': patientPhone,
+        'Email': patientEmail || 'Не указан',
+        'Врач': doctorName,
+        'Дата': appointmentDate,
+        'Время': appointmentTime,
+      };
+      
+      if (serviceName) {
+        details['Услуга'] = serviceName;
+      }
+      
+      if (comment) {
+        details['Комментарий'] = comment;
+      }
+      
+      details['Статус'] = 'Ожидает подтверждения';
+
+      sendEmail(
+        adminEmail,
+        `Новая запись: ${patientName} на ${appointmentDate} в ${appointmentTime}`,
+        getAdminNotificationTemplate({
+          type: 'new_appointment',
+          details
+        })
+      ).catch(e => console.error('Failed to send admin notification:', e));
+    }
+
+    // Логируем успешное создание
+    console.log('Appointment successfully created and emails queued');
 
     return NextResponse.json({
       success: true,
-      appointmentId: result[0].id,
+      appointmentId,
       message: 'Запись успешно создана! Мы свяжемся с вами для подтверждения.'
     });
   } catch (error) {
     console.error('Create appointment error:', error);
+    
+    // Определяем тип ошибки для более информативного ответа
+    let errorMessage = 'Ошибка при создании записи';
+    
+    if (error instanceof Error) {
+      // Проверяем на типичные ошибки базы данных
+      if (error.message.includes('foreign key')) {
+        errorMessage = 'Указанный врач или услуга не найдены';
+      } else if (error.message.includes('duplicate key')) {
+        errorMessage = 'Запись с такими данными уже существует';
+      } else {
+        errorMessage = `Ошибка: ${error.message}`;
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Ошибка при создании записи: ' + String(error) },
+      { error: errorMessage },
+      { status: 500 }
+    );
+  }
+}
+
+// Обновление статуса записи
+export async function PUT(request: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
+    let userRole: string | null = null;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET) as any;
+        userRole = decoded.role;
+      } catch (e) {
+        return NextResponse.json(
+          { error: 'Необходима авторизация' },
+          { status: 401 }
+        );
+      }
+    }
+
+    // Только админ может обновлять статус
+    if (userRole !== 'admin') {
+      return NextResponse.json(
+        { error: 'Доступ запрещен' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { appointmentId, status } = body;
+
+    if (!appointmentId || !status) {
+      return NextResponse.json(
+        { error: 'Не указан ID записи или статус' },
+        { status: 400 }
+      );
+    }
+
+    // Проверяем, что статус валидный
+    const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json(
+        { error: 'Неверный статус' },
+        { status: 400 }
+      );
+    }
+
+    // Получаем информацию о записи до обновления
+    const oldAppointment = await query<any[]>(
+      `SELECT a.*, d.name as doctor_name, s.name as service_name 
+       FROM appointments a
+       LEFT JOIN doctors d ON a.doctor_id = d.id
+       LEFT JOIN services s ON a.service_id = s.id
+       WHERE a.id = $1`,
+      [appointmentId]
+    );
+
+    if (oldAppointment.length === 0) {
+      return NextResponse.json(
+        { error: 'Запись не найдена' },
+        { status: 404 }
+      );
+    }
+
+    // Обновляем статус
+    await query(
+      'UPDATE appointments SET status = $1 WHERE id = $2',
+      [status, appointmentId]
+    );
+
+    const apt = oldAppointment[0];
+
+    // Отправляем уведомление пациенту об изменении статуса
+    if (apt.patient_email) {
+      const statusMessages: Record<string, string> = {
+        confirmed: 'Ваша запись подтверждена! Ждем вас в указанное время.',
+        cancelled: 'Ваша запись была отменена. Если у вас есть вопросы, свяжитесь с нами.',
+        completed: 'Прием завершен. Спасибо, что выбрали нашу клинику!',
+        pending: 'Ваша запись ожидает подтверждения.'
+      };
+
+      const emailSubject = 
+        status === 'confirmed' ? '✅ Ваша запись подтверждена' :
+        status === 'cancelled' ? '❌ Запись отменена' :
+        status === 'completed' ? '✓ Прием завершен' :
+        '🔄 Статус записи обновлен';
+
+      sendEmail(
+        apt.patient_email,
+        `${emailSubject} - Клиника Паллуа`,
+        getAppointmentEmailTemplate({
+          patientName: apt.patient_name,
+          doctorName: apt.doctor_name || 'Не указан',
+          serviceName: apt.service_name || undefined,
+          date: apt.appointment_date,
+          time: apt.appointment_time,
+          status
+        })
+      ).catch(e => console.error('Failed to send status update email:', e));
+    }
+
+    // Уведомление админу
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      sendEmail(
+        adminEmail,
+        `Статус записи изменен: ${apt.patient_name}`,
+        getAdminNotificationTemplate({
+          type: 'status_change',
+          details: {
+            'Пациент': apt.patient_name,
+            'Врач': apt.doctor_name || 'Не указан',
+            'Дата': apt.appointment_date,
+            'Время': apt.appointment_time,
+            'Новый статус': status,
+            'Изменено': new Date().toLocaleString('ru-RU')
+          }
+        })
+      ).catch(e => console.error('Failed to send admin status notification:', e));
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Статус записи обновлен' 
+    });
+  } catch (error) {
+    console.error('Update appointment error:', error);
+    return NextResponse.json(
+      { error: 'Ошибка при обновлении записи' },
       { status: 500 }
     );
   }

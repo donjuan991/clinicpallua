@@ -70,10 +70,13 @@ const ContactForm = () => {
                                 <div className={styles.contactContent}>
                                     <h4>Адрес</h4>
                                     <p>г. Омск, ул. 70 лет октября 26</p>
-                                    <button className={styles.mapLink}>
-                                        <i className="fas fa-directions"></i>
-                                        Посмотреть на карте
-                                    </button>
+                                    <button 
+  className={styles.mapLink}
+  onClick={() => window.open('https://yandex.ru/maps/?text=Омск, ул. 70 лет Октября, 26', '_blank')}
+>
+  <i className="fas fa-directions"></i>
+  Посмотреть на карте
+</button>
                                 </div>
                             </div>
 

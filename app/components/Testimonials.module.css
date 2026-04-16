@@ -294,3 +294,13 @@
         flex-wrap: wrap;
     }
 }
+
+.likeBtn.liked {
+  background-color: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.likeBtn.liked i {
+  color: var(--primary-color);
+}

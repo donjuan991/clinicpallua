@@ -3,7 +3,12 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './Admin.module.css';
+import DoctorModal from '../components/DoctorModal';
+import ServiceModal from '../components/ServiceModal';
+import { ToastContainer, useToast } from '../components/ui/Toast';
+import Toast from '../components/ui/Toast';
 
+// Интерфейсы с обязательным id (для совместимости с существующими данными)
 interface Doctor {
   id: number;
   name: string;
@@ -40,14 +45,47 @@ interface Appointment {
   user_name: string | null;
 }
 
+interface ScheduleSlot {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isWorkingDay: boolean;
+}
+
+interface ScheduleException {
+  id: number;
+  doctor_id: number;
+  exception_date: string;
+  is_working: boolean;
+  reason: string;
+}
+
 type TabType = 'appointments' | 'doctors' | 'services' | 'schedule';
 
 const AdminPage = () => {
+  const { toasts, showToast, removeToast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('appointments');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Модальные окна
+  const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  
+  // Расписание
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>('');
+  const [schedule, setSchedule] = useState<ScheduleSlot[]>([]);
+  const [exceptions, setExceptions] = useState<ScheduleException[]>([]);
+  const [newException, setNewException] = useState({
+    exception_date: '',
+    is_working: false,
+    reason: 'vacation'
+  });
+
   const [stats, setStats] = useState({
     totalAppointments: 0,
     pendingAppointments: 0,
@@ -63,9 +101,23 @@ const AdminPage = () => {
     dateTo: '',
   });
 
+  const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+
   useEffect(() => {
     fetchData();
   }, [activeTab, filters]);
+
+  useEffect(() => {
+    if (activeTab === 'schedule') {
+      fetchDoctors();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (selectedDoctorId) {
+      fetchSchedule(selectedDoctorId);
+    }
+  }, [selectedDoctorId]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -79,6 +131,7 @@ const AdminPage = () => {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      showToast('Ошибка при загрузке данных', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +153,13 @@ const AdminPage = () => {
       const confirmed = data.appointments.filter((a: any) => a.status === 'confirmed').length;
       const completed = data.appointments.filter((a: any) => a.status === 'completed').length;
       const cancelled = data.appointments.filter((a: any) => a.status === 'cancelled').length;
-      setStats({ totalAppointments: total, pendingAppointments: pending, confirmedAppointments: confirmed, completedAppointments: completed, cancelledAppointments: cancelled });
+      setStats({ 
+        totalAppointments: total, 
+        pendingAppointments: pending, 
+        confirmedAppointments: confirmed, 
+        completedAppointments: completed, 
+        cancelledAppointments: cancelled 
+      });
     }
   };
 
@@ -116,77 +175,160 @@ const AdminPage = () => {
     if (data.services) setServices(data.services);
   };
 
-  // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВРАЧАМИ ==========
-  
-  const handleAddDoctor = async () => {
-    const name = prompt('Введите ФИО врача:');
-    if (!name) return;
-    
-    const specialization = prompt('Введите специализацию:');
-    if (!specialization) return;
-    
-    const description = prompt('Введите описание (необязательно):') || '';
-    const experience = parseInt(prompt('Введите опыт работы (лет):') || '0');
-    
+  const fetchSchedule = async (doctorId: string) => {
     try {
-      const res = await fetch('/api/admin/doctors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          name, 
-          specialization, 
-          description, 
-          experience,
-          rating: 0,
-          isActive: true,
-          orderIndex: doctors.length + 1
-        })
-      });
-      
-      if (res.ok) {
-        alert('Врач успешно добавлен!');
-        fetchDoctors();
-      } else {
-        const error = await res.json();
-        alert('Ошибка: ' + (error.error || 'Не удалось добавить врача'));
+      const res = await fetch(`/api/admin/schedule?doctorId=${doctorId}`);
+      const data = await res.json();
+      if (data.schedule) {
+        const slots: ScheduleSlot[] = daysOfWeek.map((_, index) => {
+          const pgDay = index === 6 ? 0 : index + 1;
+          const existing = data.schedule.find((s: any) => s.day_of_week === pgDay);
+          return {
+            dayOfWeek: index,
+            startTime: existing?.start_time || '09:00',
+            endTime: existing?.end_time || '18:00',
+            isWorkingDay: existing?.is_working_day || false
+          };
+        });
+        setSchedule(slots);
+      }
+      if (data.exceptions) {
+        setExceptions(data.exceptions);
       }
     } catch (error) {
-      alert('Ошибка при добавлении врача');
+      console.error('Error fetching schedule:', error);
+      showToast('Ошибка при загрузке расписания', 'error');
     }
   };
 
-  const handleEditDoctor = async (doctor: Doctor) => {
-    const newName = prompt('Новое ФИО:', doctor.name);
-    if (!newName) return;
-    
-    const newSpecialization = prompt('Новая специализация:', doctor.specialization);
-    if (!newSpecialization) return;
-    
+  const handleSaveSchedule = async () => {
+    if (!selectedDoctorId) {
+      showToast('Выберите врача', 'warning');
+      return;
+    }
+
     try {
-      const res = await fetch('/api/admin/doctors', {
+      const res = await fetch('/api/admin/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          doctorId: parseInt(selectedDoctorId), 
+          schedule: schedule.map(s => ({
+            dayOfWeek: s.dayOfWeek === 6 ? 0 : s.dayOfWeek + 1,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            isWorkingDay: s.isWorkingDay
+          }))
+        })
+      });
+
+      if (res.ok) {
+        showToast('Расписание сохранено', 'success');
+        fetchSchedule(selectedDoctorId);
+      } else {
+        showToast('Ошибка при сохранении расписания', 'error');
+      }
+    } catch (error) {
+      showToast('Ошибка при сохранении расписания', 'error');
+    }
+  };
+
+  const handleAddException = async () => {
+    if (!selectedDoctorId) {
+      showToast('Выберите врача', 'warning');
+      return;
+    }
+    if (!newException.exception_date) {
+      showToast('Выберите дату', 'warning');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/schedule', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: doctor.id,
-          name: newName,
-          specialization: newSpecialization,
-          description: doctor.description,
-          experience: doctor.experience,
-          rating: doctor.rating,
-          isActive: doctor.is_active,
-          orderIndex: doctor.order_index
+          doctorId: parseInt(selectedDoctorId),
+          exceptionDate: newException.exception_date,
+          isWorking: newException.is_working,
+          reason: newException.reason
         })
       });
-      
+
       if (res.ok) {
-        alert('Данные врача обновлены!');
-        fetchDoctors();
+        showToast('Исключение добавлено', 'success');
+        setNewException({ exception_date: '', is_working: false, reason: 'vacation' });
+        fetchSchedule(selectedDoctorId);
       } else {
-        alert('Ошибка при обновлении');
+        showToast('Ошибка при добавлении исключения', 'error');
       }
     } catch (error) {
-      alert('Ошибка при обновлении');
+      showToast('Ошибка при добавлении исключения', 'error');
     }
+  };
+
+  const handleDeleteException = async (id: number) => {
+    try {
+      const res = await fetch(`/api/admin/schedule?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        showToast('Исключение удалено', 'success');
+        fetchSchedule(selectedDoctorId);
+      } else {
+        showToast('Ошибка при удалении исключения', 'error');
+      }
+    } catch (error) {
+      showToast('Ошибка при удалении исключения', 'error');
+    }
+  };
+
+  const updateScheduleSlot = (index: number, field: string, value: any) => {
+    setSchedule(prev => prev.map((slot, i) => 
+      i === index ? { ...slot, [field]: value } : slot
+    ));
+  };
+
+  // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВРАЧАМИ ==========
+  
+  const handleAddDoctor = () => {
+    setEditingDoctor(null);
+    setIsDoctorModalOpen(true);
+  };
+
+  const handleEditDoctor = (doctor: Doctor) => {
+    setEditingDoctor(doctor);
+    setIsDoctorModalOpen(true);
+  };
+
+  // ИСПРАВЛЕНО: убрали async, внутренняя функция saveDoctor
+  const handleSaveDoctor = (doctor: any) => {
+    const saveDoctor = async () => {
+      try {
+        const url = '/api/admin/doctors';
+        const method = doctor.id ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(doctor)
+        });
+        
+        if (res.ok) {
+          showToast(doctor.id ? 'Врач обновлен' : 'Врач добавлен', 'success');
+          setIsDoctorModalOpen(false);
+          fetchDoctors();
+        } else {
+          const error = await res.json();
+          showToast('Ошибка: ' + (error.error || 'Не удалось сохранить врача'), 'error');
+        }
+      } catch (error) {
+        showToast('Ошибка при сохранении врача', 'error');
+      }
+    };
+    
+    saveDoctor();
   };
 
   const handleDeleteDoctor = async (id: number, name: string) => {
@@ -198,85 +340,55 @@ const AdminPage = () => {
       });
       
       if (res.ok) {
-        alert('Врач удален!');
+        showToast('Врач удален', 'success');
         fetchDoctors();
       } else {
-        alert('Ошибка при удалении');
+        showToast('Ошибка при удалении', 'error');
       }
     } catch (error) {
-      alert('Ошибка при удалении');
+      showToast('Ошибка при удалении', 'error');
     }
   };
 
   // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С УСЛУГАМИ ==========
 
-  const handleAddService = async () => {
-    const name = prompt('Введите название услуги:');
-    if (!name) return;
-    
-    const price = parseInt(prompt('Введите цену (в рублях):') || '0');
-    const category = prompt('Введите категорию (consultation/face-surgery/body-surgery/breast-surgery/non-surgical):') || 'consultation';
-    const duration = parseInt(prompt('Введите длительность (в минутах):') || '60');
-    const description = prompt('Введите описание (необязательно):') || '';
-    
-    try {
-      const res = await fetch('/api/admin/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          description,
-          price,
-          duration,
-          category,
-          isActive: true,
-          orderIndex: services.length + 1
-        })
-      });
-      
-      if (res.ok) {
-        alert('Услуга успешно добавлена!');
-        fetchServices();
-      } else {
-        const error = await res.json();
-        alert('Ошибка: ' + (error.error || 'Не удалось добавить услугу'));
-      }
-    } catch (error) {
-      alert('Ошибка при добавлении услуги');
-    }
+  const handleAddService = () => {
+    setEditingService(null);
+    setIsServiceModalOpen(true);
   };
 
-  const handleEditService = async (service: Service) => {
-    const newName = prompt('Новое название:', service.name);
-    if (!newName) return;
-    
-    const newPrice = parseInt(prompt('Новая цена:', String(service.price)) || '0');
-    
-    try {
-      const res = await fetch('/api/admin/services', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: service.id,
-          name: newName,
-          description: service.description,
-          price: newPrice,
-          duration: service.duration,
-          category: service.category,
-          isActive: service.is_active,
-          orderIndex: service.order_index
-        })
-      });
-      
-      if (res.ok) {
-        alert('Услуга обновлена!');
-        fetchServices();
-      } else {
-        alert('Ошибка при обновлении');
+  const handleEditService = (service: Service) => {
+    setEditingService(service);
+    setIsServiceModalOpen(true);
+  };
+
+  // ИСПРАВЛЕНО: убрали async, внутренняя функция saveService
+  const handleSaveService = (service: any) => {
+    const saveService = async () => {
+      try {
+        const url = '/api/admin/services';
+        const method = service.id ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(service)
+        });
+        
+        if (res.ok) {
+          showToast(service.id ? 'Услуга обновлена' : 'Услуга добавлена', 'success');
+          setIsServiceModalOpen(false);
+          fetchServices();
+        } else {
+          const error = await res.json();
+          showToast('Ошибка: ' + (error.error || 'Не удалось сохранить услугу'), 'error');
+        }
+      } catch (error) {
+        showToast('Ошибка при сохранении услуги', 'error');
       }
-    } catch (error) {
-      alert('Ошибка при обновлении');
-    }
+    };
+    
+    saveService();
   };
 
   const handleDeleteService = async (id: number, name: string) => {
@@ -288,13 +400,13 @@ const AdminPage = () => {
       });
       
       if (res.ok) {
-        alert('Услуга удалена!');
+        showToast('Услуга удалена', 'success');
         fetchServices();
       } else {
-        alert('Ошибка при удалении');
+        showToast('Ошибка при удалении', 'error');
       }
     } catch (error) {
-      alert('Ошибка при удалении');
+      showToast('Ошибка при удалении', 'error');
     }
   };
 
@@ -306,10 +418,12 @@ const AdminPage = () => {
         body: JSON.stringify({ appointmentId: id, status }),
       });
       if (res.ok) {
+        showToast('Статус записи обновлен', 'success');
         fetchAppointments();
       }
     } catch (error) {
       console.error('Error updating appointment:', error);
+      showToast('Ошибка при обновлении статуса', 'error');
     }
   };
 
@@ -320,10 +434,12 @@ const AdminPage = () => {
         method: 'DELETE',
       });
       if (res.ok) {
+        showToast('Запись удалена', 'success');
         fetchAppointments();
       }
     } catch (error) {
       console.error('Error deleting appointment:', error);
+      showToast('Ошибка при удалении записи', 'error');
     }
   };
 
@@ -347,8 +463,32 @@ const AdminPage = () => {
     }
   };
 
+  const getCategoryLabel = (category: string) => {
+    const categories: Record<string, string> = {
+      'consultation': 'Консультация',
+      'face-surgery': 'Хирургия лица',
+      'body-surgery': 'Хирургия тела',
+      'breast-surgery': 'Хирургия груди',
+      'male-surgery': 'Мужская пластика',
+      'non-surgical': 'Безоперационные процедуры',
+      'reconstruction': 'Реконструктивная хирургия',
+    };
+    return categories[category] || category;
+  };
+
   return (
     <div className={styles.container}>
+      <ToastContainer>
+        {toasts.map(toast => (
+          <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => removeToast(toast.id)}
+          />
+        ))}
+      </ToastContainer>
+
       <div className={styles.header}>
         <h1>Админ-панель</h1>
         <p>Управление клиникой</p>
@@ -533,7 +673,7 @@ const AdminPage = () => {
                                   <i className="fas fa-check-double"></i>
                                 </button>
                               )}
-                              {apt.status === 'pending' && (
+                              {(apt.status === 'pending' || apt.status === 'confirmed') && (
                                 <button
                                   className={styles.cancelBtn}
                                   onClick={() => updateAppointmentStatus(apt.id, 'cancelled')}
@@ -640,7 +780,7 @@ const AdminPage = () => {
                       {services.map(service => (
                         <tr key={service.id}>
                           <td><strong>{service.name}</strong><br /><small>{service.description}</small></td>
-                          <td>{service.category}</td>
+                          <td>{getCategoryLabel(service.category)}</td>
                           <td>{service.price ? `${service.price.toLocaleString()} ₽` : '—'}</td>
                           <td>{service.duration ? `${service.duration} мин` : '—'}</td>
                           <td>
@@ -671,67 +811,122 @@ const AdminPage = () => {
               <div className={styles.scheduleSection}>
                 <div className={styles.scheduleHeader}>
                   <h3>Настройка расписания врачей</h3>
-                  <select className={styles.doctorSelect}>
+                  <select 
+                    className={styles.doctorSelect}
+                    value={selectedDoctorId}
+                    onChange={(e) => setSelectedDoctorId(e.target.value)}
+                  >
                     <option value="">Выберите врача</option>
-                    {doctors.map(doctor => (
+                    {doctors.filter(d => d.is_active).map(doctor => (
                       <option key={doctor.id} value={doctor.id}>{doctor.name}</option>
                     ))}
                   </select>
                 </div>
 
-                <div className={styles.scheduleGrid}>
-                  {['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'].map((day, index) => (
-                    <div key={index} className={styles.scheduleDayCard}>
-                      <div className={styles.dayHeader}>
-                        <h4>{day}</h4>
-                        <label className={styles.workingToggle}>
-                          <input type="checkbox" defaultChecked={index < 5} />
-                          <span>Рабочий день</span>
-                        </label>
+                {selectedDoctorId && (
+                  <>
+                    <div className={styles.scheduleGrid}>
+                      {daysOfWeek.map((day, index) => (
+                        <div key={index} className={styles.scheduleDayCard}>
+                          <div className={styles.dayHeader}>
+                            <h4>{day}</h4>
+                            <label className={styles.workingToggle}>
+                              <input 
+                                type="checkbox" 
+                                checked={schedule[index]?.isWorkingDay || false}
+                                onChange={(e) => updateScheduleSlot(index, 'isWorkingDay', e.target.checked)}
+                              />
+                              <span>Рабочий день</span>
+                            </label>
+                          </div>
+                          <div className={styles.timeInputs}>
+                            <input 
+                              type="time" 
+                              value={schedule[index]?.startTime || '09:00'}
+                              onChange={(e) => updateScheduleSlot(index, 'startTime', e.target.value)}
+                              className={styles.timeInput} 
+                              disabled={!schedule[index]?.isWorkingDay}
+                            />
+                            <span>—</span>
+                            <input 
+                              type="time" 
+                              value={schedule[index]?.endTime || '18:00'}
+                              onChange={(e) => updateScheduleSlot(index, 'endTime', e.target.value)}
+                              className={styles.timeInput} 
+                              disabled={!schedule[index]?.isWorkingDay}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className={styles.exceptionsSection}>
+                      <h4>Исключения (отпуск, больничный)</h4>
+                      <div className={styles.exceptionForm}>
+                        <input 
+                          type="date" 
+                          className={styles.dateInput}
+                          value={newException.exception_date}
+                          onChange={(e) => setNewException({ ...newException, exception_date: e.target.value })}
+                        />
+                        <select 
+                          className={styles.exceptionType}
+                          value={newException.reason}
+                          onChange={(e) => setNewException({ ...newException, reason: e.target.value })}
+                        >
+                          <option value="vacation">Отпуск</option>
+                          <option value="sick">Больничный</option>
+                          <option value="other">Другое</option>
+                        </select>
+                        <button className={styles.addExceptionBtn} onClick={handleAddException}>
+                          <i className="fas fa-plus"></i>
+                          Добавить
+                        </button>
                       </div>
-                      <div className={styles.timeInputs}>
-                        <input type="time" defaultValue="09:00" className={styles.timeInput} disabled={index >= 5} />
-                        <span>—</span>
-                        <input type="time" defaultValue={index < 5 ? "18:00" : "09:00"} className={styles.timeInput} disabled={index >= 5} />
+                      <div className={styles.exceptionsList}>
+                        {exceptions.map(ex => (
+                          <div key={ex.id} className={styles.exceptionItem}>
+                            <span>{new Date(ex.exception_date).toLocaleDateString('ru-RU')}</span>
+                            <span className={styles.exceptionType}>
+                              {ex.reason === 'vacation' ? 'Отпуск' : ex.reason === 'sick' ? 'Больничный' : 'Другое'}
+                            </span>
+                            <button 
+                              className={styles.removeExceptionBtn}
+                              onClick={() => handleDeleteException(ex.id)}
+                            >
+                              <i className="fas fa-times"></i>
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                <div className={styles.exceptionsSection}>
-                  <h4>Исключения (отпуск, больничный)</h4>
-                  <div className={styles.exceptionForm}>
-                    <input type="date" className={styles.dateInput} />
-                    <select className={styles.exceptionType}>
-                      <option value="vacation">Отпуск</option>
-                      <option value="sick">Больничный</option>
-                      <option value="other">Другое</option>
-                    </select>
-                    <button className={styles.addExceptionBtn}>
-                      <i className="fas fa-plus"></i>
-                      Добавить
+                    <button className={styles.saveScheduleBtn} onClick={handleSaveSchedule}>
+                      <i className="fas fa-save"></i>
+                      Сохранить расписание
                     </button>
-                  </div>
-                  <div className={styles.exceptionsList}>
-                    <div className={styles.exceptionItem}>
-                      <span>15.03.2024 - 20.03.2024</span>
-                      <span className={styles.exceptionType}>Отпуск</span>
-                      <button className={styles.removeExceptionBtn}>
-                        <i className="fas fa-times"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <button className={styles.saveScheduleBtn}>
-                  <i className="fas fa-save"></i>
-                  Сохранить расписание
-                </button>
+                  </>
+                )}
               </div>
             )}
           </>
         )}
       </div>
+
+      {/* Модальные окна */}
+      <DoctorModal
+        isOpen={isDoctorModalOpen}
+        onClose={() => setIsDoctorModalOpen(false)}
+        onSave={handleSaveDoctor}
+        doctor={editingDoctor}
+      />
+
+      <ServiceModal
+        isOpen={isServiceModalOpen}
+        onClose={() => setIsServiceModalOpen(false)}
+        onSave={handleSaveService}
+        service={editingService}
+      />
     </div>
   );
 };
