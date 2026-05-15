@@ -24,6 +24,23 @@ const translations = {
         yes: 'Да',
         no: 'Нет',
         loading: 'Загрузка...',
+
+        loginTitle: 'Войдите в личный кабинет',
+        registerTitle: 'Создайте аккаунт',
+        fullNamePlaceholder: 'Иванов Иван Иванович',
+        password: 'Пароль',
+        loginError: 'Ошибка при входе',
+        connectionError: 'Ошибка соединения с сервером',
+        privacyRequired: 'Необходимо согласиться на обработку персональных данных',
+        privacyAgreement: 'Я согласен на',
+        privacyPolicy: 'обработку персональных данных',
+        userAgreement: 'пользовательского соглашения',
+        and: 'и',
+        register: 'Зарегистрироваться',
+        noAccount: 'Нет аккаунта? Зарегистрироваться',
+        hasAccount: 'Уже есть аккаунт? Войти',
+        privacyPolicyText: 'Политика обработки персональных данных\n\nНажимая кнопку "Зарегистрироваться", вы даете согласие на обработку своих персональных данных в соответствии с Федеральным законом №152-ФЗ "О персональных данных" и политикой конфиденциальности Клиники Паллуа.',
+        userAgreementText: 'Пользовательское соглашение\n\nРегистрируясь на сайте, вы соглашаетесь с правилами использования сервиса и обязуетесь предоставлять достоверную информацию о себе.',
         
         // Меню
         home: 'Главная',
@@ -47,6 +64,9 @@ const translations = {
         dashboard: 'Личный кабинет',
         adminPanel: 'Админ-панель',
         myAppointments: 'Мои записи',
+        accessibilityVersion: 'Версия для слабовидящих',
+        accessibilityOn: 'Режим для слабовидящих включен',
+        accessibilityOff: 'Режим для слабовидящих выключен',
         
         // Hero
         heroTitle: 'Клиника Паллуа',
@@ -283,6 +303,23 @@ const translations = {
         yes: 'Yes',
         no: 'No',
         loading: 'Loading...',
+
+        loginTitle: 'Login to your account',
+        registerTitle: 'Create an account',
+        fullNamePlaceholder: 'John Doe',
+        password: 'Password',
+        loginError: 'Login error',
+        connectionError: 'Connection error',
+        privacyRequired: 'You must agree to the processing of personal data',
+        privacyAgreement: 'I agree to',
+        privacyPolicy: 'privacy policy',
+        userAgreement: 'user agreement',
+        and: 'and',
+        register: 'Register',
+        noAccount: 'No account? Register',
+        hasAccount: 'Already have an account? Login',
+        privacyPolicyText: 'Privacy Policy\n\nBy clicking "Register", you consent to the processing of your personal data in accordance with Federal Law No. 152-FZ "On Personal Data" and the privacy policy of Pallua Clinic.',
+        userAgreementText: 'User Agreement\n\nBy registering on the site, you agree to the terms of service and undertake to provide accurate information about yourself.',
         
         // Menu
         home: 'Home',
@@ -306,6 +343,9 @@ const translations = {
         dashboard: 'Dashboard',
         adminPanel: 'Admin Panel',
         myAppointments: 'My Appointments',
+        accessibilityVersion: 'Accessibility version',
+        accessibilityOn: 'Accessibility mode enabled',
+        accessibilityOff: 'Accessibility mode disabled',
         
         // Hero
         heroTitle: 'Pallua Clinic',
@@ -542,6 +582,23 @@ const translations = {
         yes: 'Ja',
         no: 'Nein',
         loading: 'Laden...',
+
+        loginTitle: 'Melden Sie sich an',
+        registerTitle: 'Erstellen Sie ein Konto',
+        fullNamePlaceholder: 'Max Mustermann',
+        password: 'Passwort',
+        loginError: 'Anmeldefehler',
+        connectionError: 'Verbindungsfehler',
+        privacyRequired: 'Sie müssen der Datenverarbeitung zustimmen',
+        privacyAgreement: 'Ich stimme zu',
+        privacyPolicy: 'Datenschutzerklärung',
+        userAgreement: 'Nutzungsbedingungen',
+        and: 'und',
+        register: 'Registrieren',
+        noAccount: 'Kein Konto? Registrieren',
+        hasAccount: 'Haben Sie bereits ein Konto? Anmelden',
+        privacyPolicyText: 'Datenschutzerklärung\n\nMit dem Klicken auf "Registrieren" willigen Sie in die Verarbeitung Ihrer personenbezogenen Daten gemäß Bundesgesetz Nr. 152-FZ "Über personenbezogene Daten" und der Datenschutzerklärung der Pallua Klinik ein.',
+        userAgreementText: 'Nutzungsbedingungen\n\nMit der Registrierung auf der Website stimmen Sie den Nutzungsbedingungen zu und verpflichten sich, wahrheitsgemäße Angaben zu Ihrer Person zu machen.',
         
         // Menu
         home: 'Startseite',
@@ -565,6 +622,9 @@ const translations = {
         dashboard: 'Dashboard',
         adminPanel: 'Admin-Panel',
         myAppointments: 'Meine Termine',
+        accessibilityVersion: 'Version für Sehbehinderte',
+        accessibilityOn: 'Barrierefreiheitsmodus aktiviert',
+        accessibilityOff: 'Barrierefreiheitsmodus deaktiviert',
         
         // Hero
         heroTitle: 'Pallua Klinik',

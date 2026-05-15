@@ -1,62 +1,65 @@
+"use client";
+
 import React from 'react';
 import styles from './AboutClinic.module.css';
+import { useLanguage } from './languageContext';
 
 const AboutClinic = () => {
+    const { t } = useLanguage();
+
     const features = [
         {
             id: 1,
-            title: 'Современное оборудование',
-            description: 'Используем только новейшее оборудование',
+            title: t('modernEquipment'),
+            description: t('equipmentDesc'),
             icon: 'fas fa-microscope'
         },
         {
             id: 2,
-            title: 'Опытные специалисты',
-            description: 'Врачи с многолетним стажем и регулярным повышением квалификации',
+            title: t('experiencedSpecialists'),
+            description: t('specialistsDesc'),
             icon: 'fas fa-user-md'
         },
         {
             id: 3,
-            title: 'Индивидуальный подход',
-            description: 'Для каждого пациента разрабатывается персональная программа',
+            title: t('individualApproach'),
+            description: t('approachDesc'),
             icon: 'fas fa-hand-holding-heart'
         },
         {
             id: 4,
-            title: 'Комфортные условия',
-            description: 'Уютные кабинеты и заботливый персонал для вашего удобства',
+            title: t('comfortableConditions'),
+            description: t('conditionsDesc'),
             icon: 'fas fa-home'
         }
     ];
 
     const milestones = [
-        { year: '2010', text: 'Основание клиники' },
-        { year: '2015', text: 'Сертификации' },
-        { year: '2018', text: 'Внедрение новых технологий' },
-        { year: '2020', text: 'Открытие новых клиник' },
-        { year: '2023', text: '10 000+ довольных пациентов' }
+        { year: '2010', text: t('foundation') },
+        { year: '2015', text: t('certification') },
+        { year: '2018', text: t('newTechnologies') },
+        { year: '2020', text: t('newClinics') },
+        { year: '2023', text: t('happyPatients10k') }
     ];
 
     return (
         <section id="about" className={styles.about}>
             <div className="container">
-                {/* Заголовок секции */}
                 <div className="section-header">
-                    <h2 className="section-title">Наши сильные стороны</h2>
+                    <h2 className="section-title">{t('ourStrengths')}</h2>
                     <p className="section-subtitle">
-                        Благодаря нашему многолетнему опыту и проверенной специализации, наши сильные стороны находятся там, где другие достигают предела своих возможностей:
+                        {t('aboutDescription')}
                     </p>
                 </div>
 
                 <div className={styles.aboutContent}>
-                    {/* Текстовый блок */}
                     <div className={styles.aboutText}>
                         <div className={styles.aboutMain}>
-                            <h3>Среди прочего:</h3>
+                            <h3>{t('amongOther')}</h3>
                             <p>
-                                - Сложные процедуры в области лица и шеи<br />
-                                - Корректирующие операции после неудачных процедур<br />
-                                - Удаление имплантированных инородных материалов, приводящих к обезображиванию<br />
+                                - {t('complexProcedures')}<br />
+                                - {t('correctiveSurgeries')}<br />
+                                - {t('removalImplants')}<br />
                             </p>
                         </div>
                         
@@ -75,19 +78,19 @@ const AboutClinic = () => {
                         </div>
                     </div>
 
-                 <div className={styles.aboutVisual}>
-    <div className={styles.clinicImage}>
-        <div className={styles.imagePlaceholder}>
-            <img 
-                src="/images/team.jpg" 
-                alt="Наша команда" 
-                className={styles.teamPhoto}
-            />
-        </div>
-    </div>
+                    <div className={styles.aboutVisual}>
+                        <div className={styles.clinicImage}>
+                            <div className={styles.imagePlaceholder}>
+                                <img 
+                                    src="/images/team.jpg" 
+                                    alt={t('ourSpecialists')}
+                                    className={styles.teamPhoto}
+                                />
+                            </div>
+                        </div>
                         
                         <div className={styles.milestones}>
-                            <h3>Наша история</h3>
+                            <h3>{t('ourHistory')}</h3>
                             <div className={styles.timeline}>
                                 {milestones.map((milestone, index) => (
                                     <div key={index} className={styles.milestone}>
@@ -104,23 +107,22 @@ const AboutClinic = () => {
                     </div>
                 </div>
 
-                {/* Статистика */}
                 <div className={styles.aboutStats}>
                     <div className={styles.statCard}>
                         <div className={styles.statNumber}>12</div>
-                        <div className={styles.statLabel}>Лет успешной работы</div>
+                        <div className={styles.statLabel}>{t('yearsSuccessful')}</div>
                     </div>
                     <div className={styles.statCard}>
                         <div className={styles.statNumber}>25+</div>
-                        <div className={styles.statLabel}>Врачей-специалистов</div>
+                        <div className={styles.statLabel}>{t('doctorsSpecialists')}</div>
                     </div>
                     <div className={styles.statCard}>
                         <div className={styles.statNumber}>400+</div>
-                        <div className={styles.statLabel}>Публикаций</div>
+                        <div className={styles.statLabel}>{t('publications')}</div>
                     </div>
                     <div className={styles.statCard}>
                         <div className={styles.statNumber}>99%</div>
-                        <div className={styles.statLabel}>Довольных пациентов</div>
+                        <div className={styles.statLabel}>{t('satisfiedPatients')}</div>
                     </div>
                 </div>
             </div>

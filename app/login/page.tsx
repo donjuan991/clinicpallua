@@ -3,15 +3,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '../components/languageContext';
 
 const LoginPage = () => {
+  const { t } = useLanguage();
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     name: '',
-    phone: ''
+    phone: '',
+    privacyAgreed: false
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,13 +36,23 @@ const LoginPage = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
     setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Проверка согласия при регистрации
+    if (!isLogin && !formData.privacyAgreed) {
+      setError(t('privacyRequired'));
+      return;
+    }
+    
     setIsLoading(true);
     setError('');
 
@@ -61,13 +74,23 @@ const LoginPage = () => {
       if (res.ok) {
         router.push('/dashboard');
       } else {
-        setError(data.error || 'Ошибка при входе');
+        setError(data.error || t('loginError'));
       }
     } catch (error) {
-      setError('Ошибка соединения с сервером');
+      setError(t('connectionError'));
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePrivacyPolicyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    alert(t('privacyPolicyText'));
+  };
+
+  const handleUserAgreementClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    alert(t('userAgreementText'));
   };
 
   return (
@@ -101,8 +124,10 @@ const LoginPage = () => {
           }}>
             <i className="fas fa-heartbeat" style={{ fontSize: '32px', color: 'white' }}></i>
           </div>
-          <h1 style={{ fontSize: '24px', color: '#771d55', marginBottom: '10px' }}>Клиника Паллуа</h1>
-          <p style={{ color: '#777777', fontSize: '14px' }}>{isLogin ? 'Войдите в личный кабинет' : 'Создайте аккаунт'}</p>
+          <h1 style={{ fontSize: '24px', color: '#771d55', marginBottom: '10px' }}>{t('heroTitle')}</h1>
+          <p style={{ color: '#777777', fontSize: '14px' }}>
+            {isLogin ? t('loginTitle') : t('registerTitle')}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -111,30 +136,34 @@ const LoginPage = () => {
               <div>
                 <label style={{ fontSize: '14px', fontWeight: '500', color: '#2d2d2d', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <i className="fas fa-user" style={{ color: '#771d55' }}></i>
-                  ФИО
+                  {t('fullName')}
                 </label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Иванов Иван Иванович"
-                  required
+                  placeholder={t('fullNamePlaceholder')}
+                  required={!isLogin}
                   style={{
                     width: '100%',
                     padding: '14px 16px',
                     border: '1px solid #e8e8e8',
                     borderRadius: '12px',
                     fontSize: '15px',
-                    background: 'white'
+                    background: 'white',
+                    outline: 'none',
+                    transition: 'border-color 0.3s'
                   }}
+                  onFocus={(e) => e.target.style.borderColor = '#771d55'}
+                  onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
                 />
               </div>
 
               <div>
                 <label style={{ fontSize: '14px', fontWeight: '500', color: '#2d2d2d', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <i className="fas fa-phone" style={{ color: '#771d55' }}></i>
-                  Телефон
+                  {t('phone')}
                 </label>
                 <input
                   type="tel"
@@ -148,8 +177,12 @@ const LoginPage = () => {
                     border: '1px solid #e8e8e8',
                     borderRadius: '12px',
                     fontSize: '15px',
-                    background: 'white'
+                    background: 'white',
+                    outline: 'none',
+                    transition: 'border-color 0.3s'
                   }}
+                  onFocus={(e) => e.target.style.borderColor = '#771d55'}
+                  onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
                 />
               </div>
             </>
@@ -173,15 +206,19 @@ const LoginPage = () => {
                 border: '1px solid #e8e8e8',
                 borderRadius: '12px',
                 fontSize: '15px',
-                background: 'white'
+                background: 'white',
+                outline: 'none',
+                transition: 'border-color 0.3s'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#771d55'}
+              onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
             />
           </div>
 
           <div>
             <label style={{ fontSize: '14px', fontWeight: '500', color: '#2d2d2d', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <i className="fas fa-lock" style={{ color: '#771d55' }}></i>
-              Пароль
+              {t('password')}
             </label>
             <input
               type="password"
@@ -196,10 +233,78 @@ const LoginPage = () => {
                 border: '1px solid #e8e8e8',
                 borderRadius: '12px',
                 fontSize: '15px',
-                background: 'white'
+                background: 'white',
+                outline: 'none',
+                transition: 'border-color 0.3s'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#771d55'}
+              onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
             />
           </div>
+
+          {/* Галочка соглашения при регистрации */}
+          {!isLogin && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              padding: '15px',
+              background: 'rgba(119, 29, 85, 0.03)',
+              borderRadius: '12px',
+              border: '1px solid rgba(119, 29, 85, 0.1)'
+            }}>
+              <input
+                type="checkbox"
+                id="privacyAgreed"
+                name="privacyAgreed"
+                checked={formData.privacyAgreed}
+                onChange={handleChange}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  marginTop: '3px',
+                  accentColor: '#771d55',
+                  flexShrink: 0,
+                  cursor: 'pointer'
+                }}
+              />
+              <label 
+                htmlFor="privacyAgreed" 
+                style={{
+                  fontSize: '13px',
+                  color: '#555',
+                  lineHeight: '1.5',
+                  flex: 1,
+                  cursor: 'pointer'
+                }}
+              >
+                {t('privacyAgreement')}{' '}
+                <a 
+                  href="#" 
+                  onClick={handlePrivacyPolicyClick}
+                  style={{
+                    color: '#771d55',
+                    textDecoration: 'underline',
+                    fontWeight: '500'
+                  }}
+                >
+                  {t('privacyPolicy')}
+                </a>
+                {' '}{t('and')}{' '}
+                <a 
+                  href="#" 
+                  onClick={handleUserAgreementClick}
+                  style={{
+                    color: '#771d55',
+                    textDecoration: 'underline',
+                    fontWeight: '500'
+                  }}
+                >
+                  {t('userAgreement')}
+                </a>
+              </label>
+            </div>
+          )}
 
           {error && (
             <div style={{
@@ -218,30 +323,55 @@ const LoginPage = () => {
             </div>
           )}
 
-          <button type="submit" disabled={isLoading} style={{
-            background: 'linear-gradient(135deg, #771d55 0%, #9a366e 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '14px',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            marginTop: '10px'
-          }}>
-            {isLoading ? <i className="fas fa-spinner fa-spin"></i> : (isLogin ? 'Войти' : 'Зарегистрироваться')}
+          <button 
+            type="submit" 
+            disabled={isLoading || (!isLogin && !formData.privacyAgreed)}
+            style={{
+              background: 'linear-gradient(135deg, #771d55 0%, #9a366e 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '14px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: (isLoading || (!isLogin && !formData.privacyAgreed)) ? 'not-allowed' : 'pointer',
+              marginTop: '10px',
+              opacity: (isLoading || (!isLogin && !formData.privacyAgreed)) ? 0.7 : 1,
+              transition: 'all 0.3s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+          >
+            {isLoading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i>
+                {t('loading')}
+              </>
+            ) : (
+              isLogin ? t('login') : t('register')
+            )}
           </button>
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e8e8e8' }}>
-          <button onClick={() => setIsLogin(!isLogin)} style={{
+          <button onClick={() => {
+            setIsLogin(!isLogin);
+            setError('');
+            setFormData(prev => ({ ...prev, privacyAgreed: false }));
+          }} style={{
             background: 'none',
             border: 'none',
             color: '#771d55',
             fontSize: '14px',
-            cursor: 'pointer'
-          }}>
-            {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
+            cursor: 'pointer',
+            transition: 'all 0.3s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+          onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+          >
+            {isLogin ? t('noAccount') : t('hasAccount')}
           </button>
         </div>
       </div>

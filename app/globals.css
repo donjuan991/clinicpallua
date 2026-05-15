@@ -537,3 +537,41 @@ section.animate-in {
     height: 45px;
   }
 }
+
+/* Режим для слабовидящих */
+.accessibility-mode {
+    --text-size-multiplier: 1.2;
+}
+
+.accessibility-mode body,
+.accessibility-mode {
+    font-size: calc(16px * var(--text-size-multiplier, 1.2)) !important;
+    line-height: 1.8 !important;
+    letter-spacing: 0.05em !important;
+}
+
+.accessibility-mode * {
+    font-family: Arial, sans-serif !important;
+}
+
+.accessibility-mode a,
+.accessibility-mode button {
+    text-decoration: underline !important;
+}
+
+.accessibility-mode a:hover,
+.accessibility-mode button:hover {
+    text-decoration: none !important;
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
+.accessibility-mode img {
+    filter: brightness(1.1) contrast(1.1);
+}
+
+.accessibility-mode .versionBtn {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+}

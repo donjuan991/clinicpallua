@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styles from './Specialists.module.css';
 import AppointmentModal from './AppointmentModal';
 import DoctorDetailsModal from './DoctorDetailsModal';
+import { useLanguage } from './languageContext';
 
 interface Doctor {
     id: number;
@@ -18,6 +19,7 @@ interface Doctor {
 }
 
 const Specialists = () => {
+    const { t } = useLanguage();
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
@@ -122,10 +124,9 @@ const Specialists = () => {
             <div className="container">
                 {/* Заголовок секции */}
                 <div className="section-header">
-                    <h2 className="section-title">Наши специалисты</h2>
+                    <h2 className="section-title">{t('ourSpecialists')}</h2>
                     <p className="section-subtitle">
-                        Высококвалифицированные врачи с многолетним опытом работы. 
-                        Постоянно повышают квалификацию и следят за новейшими разработками в медицине
+                        {t('specialistsDescription')}
                     </p>
                 </div>
 
@@ -154,7 +155,7 @@ const Specialists = () => {
                                     
                                     <div className={styles.experience}>
                                         <i className="fas fa-briefcase"></i>
-                                        <span>Опыт: {doctor.experience}</span>
+                                        <span>{t('experience')}: {doctor.experience}</span>
                                     </div>
                                     
                                     <div className={styles.education}>
@@ -166,7 +167,7 @@ const Specialists = () => {
                             
                             {/* Специализации */}
                             <div className={styles.specialties}>
-                                <h4>Специализация:</h4>
+                                <h4>{t('specialization')}:</h4>
                                 <div className={styles.specialtyTags}>
                                     {doctor.specialty.slice(0, 3).map((spec, index) => (
                                         <span key={index} className={styles.specialtyTag}>
@@ -188,14 +189,14 @@ const Specialists = () => {
                                     onClick={() => handleAppointmentClick(doctor)}
                                 >
                                     <i className="fas fa-calendar-alt"></i>
-                                    Записаться
+                                    {t('appointment')}
                                 </button>
                                 <button 
                                     className={styles.detailsBtn}
                                     onClick={() => handleDetailsClick(doctor)}
                                 >
                                     <i className="fas fa-info-circle"></i>
-                                    Подробнее
+                                    {t('details')}
                                 </button>
                             </div>
                         </div>
@@ -206,19 +207,19 @@ const Specialists = () => {
                 <div className={styles.stats}>
                     <div className={styles.statItem}>
                         <div className={styles.statNumber}>25+</div>
-                        <div className={styles.statLabel}>Специалистов</div>
+                        <div className={styles.statLabel}>{t('specialistsCount')}</div>
                     </div>
                     <div className={styles.statItem}>
                         <div className={styles.statNumber}>50+</div>
-                        <div className={styles.statLabel}>Направлений</div>
+                        <div className={styles.statLabel}>{t('directions')}</div>
                     </div>
                     <div className={styles.statItem}>
                         <div className={styles.statNumber}>100%</div>
-                        <div className={styles.statLabel}>Квалификация</div>
+                        <div className={styles.statLabel}>{t('qualification')}</div>
                     </div>
                     <div className={styles.statItem}>
                         <div className={styles.statNumber}>24/7</div>
-                        <div className={styles.statLabel}>Консультации</div>
+                        <div className={styles.statLabel}>{t('consultations')}</div>
                     </div>
                 </div>
             </div>

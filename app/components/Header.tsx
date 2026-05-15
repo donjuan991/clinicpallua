@@ -1,4 +1,4 @@
-// app/components/Header.tsx (добавляем информацию о пользователе)
+// app/components/Header.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -24,9 +24,18 @@ const Header = () => {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [isCallbackModalOpen, setIsCallbackModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isAccessibilityMode, setIsAccessibilityMode] = useState(false);
 
   useEffect(() => {
     fetchUser();
+    // Восстановить режим доступности
+    if (typeof window !== 'undefined') {
+      const savedMode = localStorage.getItem('accessibilityMode');
+      if (savedMode === 'true') {
+        setIsAccessibilityMode(true);
+        document.body.classList.add('accessibility-mode');
+      }
+    }
   }, []);
 
   const fetchUser = async () => {
@@ -59,6 +68,19 @@ const Header = () => {
     setIsCallbackModalOpen(true);
   };
 
+  const handleAccessibilityToggle = () => {
+    const newMode = !isAccessibilityMode;
+    setIsAccessibilityMode(newMode);
+    
+    if (newMode) {
+      document.body.classList.add('accessibility-mode');
+      localStorage.setItem('accessibilityMode', 'true');
+    } else {
+      document.body.classList.remove('accessibility-mode');
+      localStorage.removeItem('accessibilityMode');
+    }
+  };
+
   return (
     <>
       <div className={styles.headerTop}>
@@ -82,6 +104,18 @@ const Header = () => {
           </div>
 
           <div className={styles.headerActions}>
+            {/* Кнопка версии для слабовидящих */}
+            <div className={styles.versionContainer}>
+              <button 
+                className={`${styles.versionBtn} ${isAccessibilityMode ? styles.versionBtnActive : ''}`}
+                onClick={handleAccessibilityToggle}
+                title={t('accessibilityVersion')}
+              >
+                <i className={`fas fa-eye ${styles.eyeIcon}`}></i>
+                <span className={styles.versionBtnText}>{t('accessibilityVersion')}</span>
+              </button>
+            </div>
+
             {/* Информация о пользователе */}
             {user ? (
               <div className={styles.userMenu}>
@@ -92,24 +126,24 @@ const Header = () => {
                 <div className={styles.userDropdown}>
                   <a href="/dashboard" className={styles.dropdownItem}>
                     <i className="fas fa-calendar-alt"></i>
-                    Мои записи
+                    {t('myAppointments')}
                   </a>
                   {user.role === 'admin' && (
                     <a href="/admin" className={styles.dropdownItem}>
                       <i className="fas fa-cog"></i>
-                      Админ-панель
+                      {t('adminPanel')}
                     </a>
                   )}
                   <button onClick={handleLogout} className={styles.dropdownItem}>
                     <i className="fas fa-sign-out-alt"></i>
-                    Выйти
+                    {t('logout')}
                   </button>
                 </div>
               </div>
             ) : (
               <a href="/login" className={styles.loginBtn}>
                 <i className="fas fa-user"></i>
-                Войти
+                {t('login')}
               </a>
             )}
             
