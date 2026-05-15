@@ -8,7 +8,7 @@ import ServiceModal from '../components/ServiceModal';
 import { ToastContainer, useToast } from '../components/ui/Toast';
 import Toast from '../components/ui/Toast';
 
-// Интерфейсы с обязательным id (для совместимости с существующими данными)
+// Интерфейсы
 interface Doctor {
   id: number;
   name: string;
@@ -78,7 +78,14 @@ const AdminPage = () => {
   
   // Расписание
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>('');
-  const [schedule, setSchedule] = useState<ScheduleSlot[]>([]);
+  const [schedule, setSchedule] = useState<ScheduleSlot[]>(
+    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((_, index) => ({
+      dayOfWeek: index,
+      startTime: '09:00',
+      endTime: '18:00',
+      isWorkingDay: false
+    }))
+  );
   const [exceptions, setExceptions] = useState<ScheduleException[]>([]);
   const [newException, setNewException] = useState({
     exception_date: '',
@@ -116,8 +123,18 @@ const AdminPage = () => {
   useEffect(() => {
     if (selectedDoctorId) {
       fetchSchedule(selectedDoctorId);
+    } else {
+      setSchedule(daysOfWeek.map((_, index) => ({
+        dayOfWeek: index,
+        startTime: '09:00',
+        endTime: '18:00',
+        isWorkingDay: false
+      })));
+      setExceptions([]);
     }
   }, [selectedDoctorId]);
+
+  // ========== ЗАГРУЗКА ДАННЫХ ==========
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -148,17 +165,12 @@ const AdminPage = () => {
     const data = await res.json();
     if (data.appointments) {
       setAppointments(data.appointments);
-      const total = data.appointments.length;
-      const pending = data.appointments.filter((a: any) => a.status === 'pending').length;
-      const confirmed = data.appointments.filter((a: any) => a.status === 'confirmed').length;
-      const completed = data.appointments.filter((a: any) => a.status === 'completed').length;
-      const cancelled = data.appointments.filter((a: any) => a.status === 'cancelled').length;
-      setStats({ 
-        totalAppointments: total, 
-        pendingAppointments: pending, 
-        confirmedAppointments: confirmed, 
-        completedAppointments: completed, 
-        cancelledAppointments: cancelled 
+      setStats({
+        totalAppointments: data.appointments.length,
+        pendingAppointments: data.appointments.filter((a: any) => a.status === 'pending').length,
+        confirmedAppointments: data.appointments.filter((a: any) => a.status === 'confirmed').length,
+        completedAppointments: data.appointments.filter((a: any) => a.status === 'completed').length,
+        cancelledAppointments: data.appointments.filter((a: any) => a.status === 'cancelled').length,
       });
     }
   };
@@ -175,23 +187,39 @@ const AdminPage = () => {
     if (data.services) setServices(data.services);
   };
 
+  // ========== РАСПИСАНИЕ ==========
+
   const fetchSchedule = async (doctorId: string) => {
     try {
+      console.log('Fetching schedule for doctor:', doctorId);
+      
       const res = await fetch(`/api/admin/schedule?doctorId=${doctorId}`);
-      const data = await res.json();
-      if (data.schedule) {
-        const slots: ScheduleSlot[] = daysOfWeek.map((_, index) => {
-          const pgDay = index === 6 ? 0 : index + 1;
-          const existing = data.schedule.find((s: any) => s.day_of_week === pgDay);
-          return {
-            dayOfWeek: index,
-            startTime: existing?.start_time || '09:00',
-            endTime: existing?.end_time || '18:00',
-            isWorkingDay: existing?.is_working_day || false
-          };
-        });
-        setSchedule(slots);
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Schedule fetch failed:', res.status, errorData);
+        showToast('Ошибка при загрузке расписания', 'error');
+        return;
       }
+      
+      const data = await res.json();
+      console.log('Schedule data received:', data);
+      
+      const slots: ScheduleSlot[] = daysOfWeek.map((_, index) => {
+        const pgDay = index + 1; // PG: 1=Пн, 2=Вт, ..., 7=Вс
+        const existing = data.schedule?.find((s: any) => s.day_of_week === pgDay);
+        
+        return {
+          dayOfWeek: index,
+          startTime: existing?.start_time || '09:00',
+          endTime: existing?.end_time || '18:00',
+          isWorkingDay: existing ? existing.is_working_day : false
+        };
+      });
+      
+      console.log('Processed schedule slots:', slots);
+      setSchedule(slots);
+      
       if (data.exceptions) {
         setExceptions(data.exceptions);
       }
@@ -208,27 +236,35 @@ const AdminPage = () => {
     }
 
     try {
+      const scheduleData = schedule.map(s => ({
+        dayOfWeek: s.dayOfWeek + 1, // Конвертируем: индекс 0-6 -> PG день 1-7
+        startTime: s.startTime,
+        endTime: s.endTime,
+        isWorkingDay: s.isWorkingDay
+      }));
+
+      console.log('Saving schedule:', { doctorId: parseInt(selectedDoctorId), schedule: scheduleData });
+
       const res = await fetch('/api/admin/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           doctorId: parseInt(selectedDoctorId), 
-          schedule: schedule.map(s => ({
-            dayOfWeek: s.dayOfWeek === 6 ? 0 : s.dayOfWeek + 1,
-            startTime: s.startTime,
-            endTime: s.endTime,
-            isWorkingDay: s.isWorkingDay
-          }))
+          schedule: scheduleData
         })
       });
 
+      const data = await res.json();
+      console.log('Schedule save response:', data);
+
       if (res.ok) {
         showToast('Расписание сохранено', 'success');
-        fetchSchedule(selectedDoctorId);
+        await fetchSchedule(selectedDoctorId);
       } else {
-        showToast('Ошибка при сохранении расписания', 'error');
+        showToast('Ошибка: ' + (data.error || 'Не удалось сохранить'), 'error');
       }
     } catch (error) {
+      console.error('Error saving schedule:', error);
       showToast('Ошибка при сохранении расписания', 'error');
     }
   };
@@ -244,25 +280,35 @@ const AdminPage = () => {
     }
 
     try {
+      console.log('Adding exception:', {
+        doctorId: parseInt(selectedDoctorId),
+        exceptionDate: newException.exception_date,
+        reason: newException.reason
+      });
+
       const res = await fetch('/api/admin/schedule', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           doctorId: parseInt(selectedDoctorId),
           exceptionDate: newException.exception_date,
-          isWorking: newException.is_working,
+          isWorking: false,
           reason: newException.reason
         })
       });
 
+      const data = await res.json();
+      console.log('Exception add response:', data);
+
       if (res.ok) {
         showToast('Исключение добавлено', 'success');
         setNewException({ exception_date: '', is_working: false, reason: 'vacation' });
-        fetchSchedule(selectedDoctorId);
+        await fetchSchedule(selectedDoctorId);
       } else {
-        showToast('Ошибка при добавлении исключения', 'error');
+        showToast('Ошибка: ' + (data.error || 'Не удалось добавить'), 'error');
       }
     } catch (error) {
+      console.error('Error adding exception:', error);
       showToast('Ошибка при добавлении исключения', 'error');
     }
   };
@@ -275,12 +321,12 @@ const AdminPage = () => {
 
       if (res.ok) {
         showToast('Исключение удалено', 'success');
-        fetchSchedule(selectedDoctorId);
+        await fetchSchedule(selectedDoctorId);
       } else {
-        showToast('Ошибка при удалении исключения', 'error');
+        showToast('Ошибка при удалении', 'error');
       }
     } catch (error) {
-      showToast('Ошибка при удалении исключения', 'error');
+      showToast('Ошибка при удалении', 'error');
     }
   };
 
@@ -290,8 +336,8 @@ const AdminPage = () => {
     ));
   };
 
-  // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВРАЧАМИ ==========
-  
+  // ========== ВРАЧИ ==========
+
   const handleAddDoctor = () => {
     setEditingDoctor(null);
     setIsDoctorModalOpen(true);
@@ -302,7 +348,6 @@ const AdminPage = () => {
     setIsDoctorModalOpen(true);
   };
 
-  // ИСПРАВЛЕНО: убрали async, внутренняя функция saveDoctor
   const handleSaveDoctor = (doctor: any) => {
     const saveDoctor = async () => {
       try {
@@ -321,24 +366,19 @@ const AdminPage = () => {
           fetchDoctors();
         } else {
           const error = await res.json();
-          showToast('Ошибка: ' + (error.error || 'Не удалось сохранить врача'), 'error');
+          showToast('Ошибка: ' + (error.error || 'Не удалось сохранить'), 'error');
         }
       } catch (error) {
-        showToast('Ошибка при сохранении врача', 'error');
+        showToast('Ошибка при сохранении', 'error');
       }
     };
-    
     saveDoctor();
   };
 
   const handleDeleteDoctor = async (id: number, name: string) => {
     if (!confirm(`Удалить врача "${name}"?`)) return;
-    
     try {
-      const res = await fetch(`/api/admin/doctors?id=${id}`, {
-        method: 'DELETE',
-      });
-      
+      const res = await fetch(`/api/admin/doctors?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         showToast('Врач удален', 'success');
         fetchDoctors();
@@ -350,7 +390,7 @@ const AdminPage = () => {
     }
   };
 
-  // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С УСЛУГАМИ ==========
+  // ========== УСЛУГИ ==========
 
   const handleAddService = () => {
     setEditingService(null);
@@ -362,7 +402,6 @@ const AdminPage = () => {
     setIsServiceModalOpen(true);
   };
 
-  // ИСПРАВЛЕНО: убрали async, внутренняя функция saveService
   const handleSaveService = (service: any) => {
     const saveService = async () => {
       try {
@@ -381,24 +420,19 @@ const AdminPage = () => {
           fetchServices();
         } else {
           const error = await res.json();
-          showToast('Ошибка: ' + (error.error || 'Не удалось сохранить услугу'), 'error');
+          showToast('Ошибка: ' + (error.error || 'Не удалось сохранить'), 'error');
         }
       } catch (error) {
-        showToast('Ошибка при сохранении услуги', 'error');
+        showToast('Ошибка при сохранении', 'error');
       }
     };
-    
     saveService();
   };
 
   const handleDeleteService = async (id: number, name: string) => {
     if (!confirm(`Удалить услугу "${name}"?`)) return;
-    
     try {
-      const res = await fetch(`/api/admin/services?id=${id}`, {
-        method: 'DELETE',
-      });
-      
+      const res = await fetch(`/api/admin/services?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         showToast('Услуга удалена', 'success');
         fetchServices();
@@ -410,87 +444,74 @@ const AdminPage = () => {
     }
   };
 
+  // ========== ЗАПИСИ ==========
+
   const updateAppointmentStatus = async (id: number, status: string) => {
     try {
-      // Используем админский API для обновления статуса
       const res = await fetch('/api/admin/appointments', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ appointmentId: id, status }),
       });
-      
       if (res.ok) {
-        showToast('Статус записи обновлен', 'success');
+        showToast('Статус обновлен', 'success');
         fetchAppointments();
       } else {
         const error = await res.json();
-        showToast('Ошибка: ' + (error.error || 'Не удалось обновить статус'), 'error');
+        showToast('Ошибка: ' + (error.error || 'Не удалось обновить'), 'error');
       }
     } catch (error) {
-      console.error('Error updating appointment:', error);
-      showToast('Ошибка при обновлении статуса', 'error');
+      showToast('Ошибка при обновлении', 'error');
     }
   };
 
   const deleteAppointment = async (id: number) => {
     if (!confirm('Удалить запись?')) return;
     try {
-      const res = await fetch(`/api/admin/appointments?id=${id}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(`/api/admin/appointments?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         showToast('Запись удалена', 'success');
         fetchAppointments();
       }
     } catch (error) {
-      console.error('Error deleting appointment:', error);
-      showToast('Ошибка при удалении записи', 'error');
+      showToast('Ошибка при удалении', 'error');
     }
   };
 
+  // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+
   const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending': return 'Ожидает';
-      case 'confirmed': return 'Подтверждена';
-      case 'cancelled': return 'Отменена';
-      case 'completed': return 'Завершена';
-      default: return status;
-    }
+    const map: Record<string, string> = {
+      pending: 'Ожидает', confirmed: 'Подтверждена', cancelled: 'Отменена', completed: 'Завершена'
+    };
+    return map[status] || status;
   };
 
   const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'pending': return styles.statusPending;
-      case 'confirmed': return styles.statusConfirmed;
-      case 'cancelled': return styles.statusCancelled;
-      case 'completed': return styles.statusCompleted;
-      default: return '';
-    }
+    const map: Record<string, string> = {
+      pending: styles.statusPending, confirmed: styles.statusConfirmed,
+      cancelled: styles.statusCancelled, completed: styles.statusCompleted
+    };
+    return map[status] || '';
   };
 
   const getCategoryLabel = (category: string) => {
-    const categories: Record<string, string> = {
-      'consultation': 'Консультация',
-      'face-surgery': 'Хирургия лица',
-      'body-surgery': 'Хирургия тела',
-      'breast-surgery': 'Хирургия груди',
-      'male-surgery': 'Мужская пластика',
-      'non-surgical': 'Безоперационные процедуры',
+    const map: Record<string, string> = {
+      'consultation': 'Консультация', 'face-surgery': 'Хирургия лица',
+      'body-surgery': 'Хирургия тела', 'breast-surgery': 'Хирургия груди',
+      'male-surgery': 'Мужская пластика', 'non-surgical': 'Безоперационные процедуры',
       'reconstruction': 'Реконструктивная хирургия',
     };
-    return categories[category] || category;
+    return map[category] || category;
   };
+
+  // ========== РЕНДЕР ==========
 
   return (
     <div className={styles.container}>
       <ToastContainer>
         {toasts.map(toast => (
-          <Toast
-            key={toast.id}
-            message={toast.message}
-            type={toast.type}
-            onClose={() => removeToast(toast.id)}
-          />
+          <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
         ))}
       </ToastContainer>
 
@@ -502,210 +523,83 @@ const AdminPage = () => {
       {/* Статистика */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <i className="fas fa-calendar-alt"></i>
-          </div>
-          <div className={styles.statInfo}>
-            <div className={styles.statNumber}>{stats.totalAppointments}</div>
-            <div className={styles.statLabel}>Всего записей</div>
-          </div>
+          <div className={styles.statIcon}><i className="fas fa-calendar-alt"></i></div>
+          <div className={styles.statInfo}><div className={styles.statNumber}>{stats.totalAppointments}</div><div className={styles.statLabel}>Всего записей</div></div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(255, 193, 7, 0.1)' }}>
-            <i className="fas fa-clock" style={{ color: '#ffc107' }}></i>
-          </div>
-          <div className={styles.statInfo}>
-            <div className={styles.statNumber}>{stats.pendingAppointments}</div>
-            <div className={styles.statLabel}>Ожидают</div>
-          </div>
+          <div className={styles.statIcon} style={{ background: 'rgba(255, 193, 7, 0.1)' }}><i className="fas fa-clock" style={{ color: '#ffc107' }}></i></div>
+          <div className={styles.statInfo}><div className={styles.statNumber}>{stats.pendingAppointments}</div><div className={styles.statLabel}>Ожидают</div></div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(40, 167, 69, 0.1)' }}>
-            <i className="fas fa-check-circle" style={{ color: '#28a745' }}></i>
-          </div>
-          <div className={styles.statInfo}>
-            <div className={styles.statNumber}>{stats.confirmedAppointments}</div>
-            <div className={styles.statLabel}>Подтверждены</div>
-          </div>
+          <div className={styles.statIcon} style={{ background: 'rgba(40, 167, 69, 0.1)' }}><i className="fas fa-check-circle" style={{ color: '#28a745' }}></i></div>
+          <div className={styles.statInfo}><div className={styles.statNumber}>{stats.confirmedAppointments}</div><div className={styles.statLabel}>Подтверждены</div></div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(23, 162, 184, 0.1)' }}>
-            <i className="fas fa-check-double" style={{ color: '#17a2b8' }}></i>
-          </div>
-          <div className={styles.statInfo}>
-            <div className={styles.statNumber}>{stats.completedAppointments}</div>
-            <div className={styles.statLabel}>Завершены</div>
-          </div>
+          <div className={styles.statIcon} style={{ background: 'rgba(23, 162, 184, 0.1)' }}><i className="fas fa-check-double" style={{ color: '#17a2b8' }}></i></div>
+          <div className={styles.statInfo}><div className={styles.statNumber}>{stats.completedAppointments}</div><div className={styles.statLabel}>Завершены</div></div>
         </div>
       </div>
 
       {/* Табы */}
       <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === 'appointments' ? styles.active : ''}`}
-          onClick={() => setActiveTab('appointments')}
-        >
-          <i className="fas fa-calendar-check"></i>
-          Записи
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'doctors' ? styles.active : ''}`}
-          onClick={() => setActiveTab('doctors')}
-        >
-          <i className="fas fa-user-md"></i>
-          Врачи
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'services' ? styles.active : ''}`}
-          onClick={() => setActiveTab('services')}
-        >
-          <i className="fas fa-stethoscope"></i>
-          Услуги
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'schedule' ? styles.active : ''}`}
-          onClick={() => setActiveTab('schedule')}
-        >
-          <i className="fas fa-calendar-week"></i>
-          Расписание
-        </button>
+        {[
+          { id: 'appointments', icon: 'fa-calendar-check', label: 'Записи' },
+          { id: 'doctors', icon: 'fa-user-md', label: 'Врачи' },
+          { id: 'services', icon: 'fa-stethoscope', label: 'Услуги' },
+          { id: 'schedule', icon: 'fa-calendar-week', label: 'Расписание' },
+        ].map(tab => (
+          <button key={tab.id} className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`} onClick={() => setActiveTab(tab.id as TabType)}>
+            <i className={`fas ${tab.icon}`}></i> {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Контент */}
       <div className={styles.content}>
         {isLoading ? (
-          <div className={styles.loading}>
-            <i className="fas fa-spinner fa-spin"></i>
-            Загрузка...
-          </div>
+          <div className={styles.loading}><i className="fas fa-spinner fa-spin"></i> Загрузка...</div>
         ) : (
           <>
             {/* Записи */}
             {activeTab === 'appointments' && (
               <div>
                 <div className={styles.filters}>
-                  <select
-                    value={filters.status}
-                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                    className={styles.filterSelect}
-                  >
+                  <select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className={styles.filterSelect}>
                     <option value="">Все статусы</option>
-                    <option value="pending">Ожидает</option>
-                    <option value="confirmed">Подтверждена</option>
-                    <option value="completed">Завершена</option>
-                    <option value="cancelled">Отменена</option>
+                    <option value="pending">Ожидает</option><option value="confirmed">Подтверждена</option>
+                    <option value="completed">Завершена</option><option value="cancelled">Отменена</option>
                   </select>
-                  <select
-                    value={filters.doctorId}
-                    onChange={(e) => setFilters({ ...filters, doctorId: e.target.value })}
-                    className={styles.filterSelect}
-                  >
+                  <select value={filters.doctorId} onChange={(e) => setFilters({ ...filters, doctorId: e.target.value })} className={styles.filterSelect}>
                     <option value="">Все врачи</option>
-                    {doctors.map(doctor => (
-                      <option key={doctor.id} value={doctor.id}>{doctor.name}</option>
-                    ))}
+                    {doctors.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                   </select>
-                  <input
-                    type="date"
-                    value={filters.dateFrom}
-                    onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
-                    className={styles.filterInput}
-                    placeholder="Дата от"
-                  />
-                  <input
-                    type="date"
-                    value={filters.dateTo}
-                    onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
-                    className={styles.filterInput}
-                    placeholder="Дата до"
-                  />
-                  <button
-                    className={styles.resetBtn}
-                    onClick={() => setFilters({ status: '', doctorId: '', dateFrom: '', dateTo: '' })}
-                  >
-                    <i className="fas fa-undo"></i>
-                    Сбросить
-                  </button>
+                  <input type="date" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className={styles.filterInput} />
+                  <input type="date" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className={styles.filterInput} />
+                  <button className={styles.resetBtn} onClick={() => setFilters({ status: '', doctorId: '', dateFrom: '', dateTo: '' })}><i className="fas fa-undo"></i> Сбросить</button>
                 </div>
-
                 <div className={styles.appointmentsTable}>
                   <table>
-                    <thead>
-                      <tr>
-                        <th>Дата</th>
-                        <th>Время</th>
-                        <th>Пациент</th>
-                        <th>Врач</th>
-                        <th>Услуга</th>
-                        <th>Статус</th>
-                        <th>Действия</th>
-                      </tr>
-                    </thead>
+                    <thead><tr><th>Дата</th><th>Время</th><th>Пациент</th><th>Врач</th><th>Услуга</th><th>Статус</th><th>Действия</th></tr></thead>
                     <tbody>
                       {appointments.map(apt => (
                         <tr key={apt.id}>
                           <td>{new Date(apt.appointment_date).toLocaleDateString('ru-RU')}</td>
                           <td>{apt.appointment_time}</td>
-                          <td>
-                            <strong>{apt.patient_name}</strong>
-                            <br />
-                            <small>{apt.patient_phone}</small>
-                          </td>
-                          <td>{apt.doctor_name}</td>
-                          <td>{apt.service_name || '—'}</td>
-                          <td>
-                            <span className={`${styles.statusBadge} ${getStatusClass(apt.status)}`}>
-                              {getStatusText(apt.status)}
-                            </span>
-                          </td>
+                          <td><strong>{apt.patient_name}</strong><br /><small>{apt.patient_phone}</small></td>
+                          <td>{apt.doctor_name}</td><td>{apt.service_name || '—'}</td>
+                          <td><span className={`${styles.statusBadge} ${getStatusClass(apt.status)}`}>{getStatusText(apt.status)}</span></td>
                           <td>
                             <div className={styles.actions}>
-                              {apt.status === 'pending' && (
-                                <button
-                                  className={styles.confirmBtn}
-                                  onClick={() => updateAppointmentStatus(apt.id, 'confirmed')}
-                                  title="Подтвердить"
-                                >
-                                  <i className="fas fa-check"></i>
-                                </button>
-                              )}
-                              {apt.status === 'confirmed' && (
-                                <button
-                                  className={styles.completeBtn}
-                                  onClick={() => updateAppointmentStatus(apt.id, 'completed')}
-                                  title="Завершить"
-                                >
-                                  <i className="fas fa-check-double"></i>
-                                </button>
-                              )}
-                              {(apt.status === 'pending' || apt.status === 'confirmed') && (
-                                <button
-                                  className={styles.cancelBtn}
-                                  onClick={() => updateAppointmentStatus(apt.id, 'cancelled')}
-                                  title="Отменить"
-                                >
-                                  <i className="fas fa-times"></i>
-                                </button>
-                              )}
-                              <button
-                                className={styles.deleteBtn}
-                                onClick={() => deleteAppointment(apt.id)}
-                                title="Удалить"
-                              >
-                                <i className="fas fa-trash"></i>
-                              </button>
+                              {apt.status === 'pending' && <button className={styles.confirmBtn} onClick={() => updateAppointmentStatus(apt.id, 'confirmed')} title="Подтвердить"><i className="fas fa-check"></i></button>}
+                              {apt.status === 'confirmed' && <button className={styles.completeBtn} onClick={() => updateAppointmentStatus(apt.id, 'completed')} title="Завершить"><i className="fas fa-check-double"></i></button>}
+                              {(apt.status === 'pending' || apt.status === 'confirmed') && <button className={styles.cancelBtn} onClick={() => updateAppointmentStatus(apt.id, 'cancelled')} title="Отменить"><i className="fas fa-times"></i></button>}
+                              <button className={styles.deleteBtn} onClick={() => deleteAppointment(apt.id)} title="Удалить"><i className="fas fa-trash"></i></button>
                             </div>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  {appointments.length === 0 && (
-                    <div className={styles.emptyState}>
-                      <i className="fas fa-calendar-alt"></i>
-                      <p>Нет записей</p>
-                    </div>
-                  )}
+                  {appointments.length === 0 && <div className={styles.emptyState}><i className="fas fa-calendar-alt"></i><p>Нет записей</p></div>}
                 </div>
               </div>
             )}
@@ -713,48 +607,23 @@ const AdminPage = () => {
             {/* Врачи */}
             {activeTab === 'doctors' && (
               <div className={styles.doctorsList}>
-                <button className={styles.addBtn} onClick={handleAddDoctor}>
-                  <i className="fas fa-plus"></i>
-                  Добавить врача
-                </button>
+                <button className={styles.addBtn} onClick={handleAddDoctor}><i className="fas fa-plus"></i> Добавить врача</button>
                 <div className={styles.doctorsGrid}>
                   {doctors.map(doctor => (
                     <div key={doctor.id} className={styles.doctorCard}>
                       <div className={styles.doctorHeader}>
-                        <div className={styles.doctorAvatar}>
-                          <i className="fas fa-user-md"></i>
-                        </div>
-                        <div className={styles.doctorInfo}>
-                          <h3>{doctor.name}</h3>
-                          <p>{doctor.specialization}</p>
-                        </div>
-                        <span className={doctor.is_active ? styles.activeBadge : styles.inactiveBadge}>
-                          {doctor.is_active ? 'Активен' : 'Неактивен'}
-                        </span>
+                        <div className={styles.doctorAvatar}><i className="fas fa-user-md"></i></div>
+                        <div className={styles.doctorInfo}><h3>{doctor.name}</h3><p>{doctor.specialization}</p></div>
+                        <span className={doctor.is_active ? styles.activeBadge : styles.inactiveBadge}>{doctor.is_active ? 'Активен' : 'Неактивен'}</span>
                       </div>
                       <div className={styles.doctorBody}>
-                        <div className={styles.infoRow}>
-                          <i className="fas fa-briefcase"></i>
-                          <span>Опыт: {doctor.experience} лет</span>
-                        </div>
-                        <div className={styles.infoRow}>
-                          <i className="fas fa-star"></i>
-                          <span>Рейтинг: {doctor.rating}</span>
-                        </div>
-                        <div className={styles.infoRow}>
-                          <i className="fas fa-align-left"></i>
-                          <span>{doctor.description}</span>
-                        </div>
+                        <div className={styles.infoRow}><i className="fas fa-briefcase"></i><span>Опыт: {doctor.experience} лет</span></div>
+                        <div className={styles.infoRow}><i className="fas fa-star"></i><span>Рейтинг: {doctor.rating}</span></div>
+                        <div className={styles.infoRow}><i className="fas fa-align-left"></i><span>{doctor.description}</span></div>
                       </div>
                       <div className={styles.doctorActions}>
-                        <button className={styles.editBtn} onClick={() => handleEditDoctor(doctor)}>
-                          <i className="fas fa-edit"></i>
-                          Редактировать
-                        </button>
-                        <button className={styles.deleteBtn} onClick={() => handleDeleteDoctor(doctor.id, doctor.name)}>
-                          <i className="fas fa-trash"></i>
-                          Удалить
-                        </button>
+                        <button className={styles.editBtn} onClick={() => handleEditDoctor(doctor)}><i className="fas fa-edit"></i> Редактировать</button>
+                        <button className={styles.deleteBtn} onClick={() => handleDeleteDoctor(doctor.id, doctor.name)}><i className="fas fa-trash"></i> Удалить</button>
                       </div>
                     </div>
                   ))}
@@ -765,22 +634,10 @@ const AdminPage = () => {
             {/* Услуги */}
             {activeTab === 'services' && (
               <div className={styles.servicesList}>
-                <button className={styles.addBtn} onClick={handleAddService}>
-                  <i className="fas fa-plus"></i>
-                  Добавить услугу
-                </button>
+                <button className={styles.addBtn} onClick={handleAddService}><i className="fas fa-plus"></i> Добавить услугу</button>
                 <div className={styles.servicesTable}>
                   <table>
-                    <thead>
-                      <tr>
-                        <th>Название</th>
-                        <th>Категория</th>
-                        <th>Цена</th>
-                        <th>Длительность</th>
-                        <th>Статус</th>
-                        <th>Действия</th>
-                      </tr>
-                    </thead>
+                    <thead><tr><th>Название</th><th>Категория</th><th>Цена</th><th>Длительность</th><th>Статус</th><th>Действия</th></tr></thead>
                     <tbody>
                       {services.map(service => (
                         <tr key={service.id}>
@@ -788,19 +645,11 @@ const AdminPage = () => {
                           <td>{getCategoryLabel(service.category)}</td>
                           <td>{service.price ? `${service.price.toLocaleString()} ₽` : '—'}</td>
                           <td>{service.duration ? `${service.duration} мин` : '—'}</td>
-                          <td>
-                            <span className={service.is_active ? styles.activeBadge : styles.inactiveBadge}>
-                              {service.is_active ? 'Активна' : 'Неактивна'}
-                            </span>
-                          </td>
+                          <td><span className={service.is_active ? styles.activeBadge : styles.inactiveBadge}>{service.is_active ? 'Активна' : 'Неактивна'}</span></td>
                           <td>
                             <div className={styles.actions}>
-                              <button className={styles.editBtn} onClick={() => handleEditService(service)}>
-                                <i className="fas fa-edit"></i>
-                              </button>
-                              <button className={styles.deleteBtn} onClick={() => handleDeleteService(service.id, service.name)}>
-                                <i className="fas fa-trash"></i>
-                              </button>
+                              <button className={styles.editBtn} onClick={() => handleEditService(service)}><i className="fas fa-edit"></i></button>
+                              <button className={styles.deleteBtn} onClick={() => handleDeleteService(service.id, service.name)}><i className="fas fa-trash"></i></button>
                             </div>
                           </td>
                         </tr>
@@ -816,18 +665,11 @@ const AdminPage = () => {
               <div className={styles.scheduleSection}>
                 <div className={styles.scheduleHeader}>
                   <h3>Настройка расписания врачей</h3>
-                  <select 
-                    className={styles.doctorSelect}
-                    value={selectedDoctorId}
-                    onChange={(e) => setSelectedDoctorId(e.target.value)}
-                  >
+                  <select className={styles.doctorSelect} value={selectedDoctorId} onChange={(e) => setSelectedDoctorId(e.target.value)}>
                     <option value="">Выберите врача</option>
-                    {doctors.filter(d => d.is_active).map(doctor => (
-                      <option key={doctor.id} value={doctor.id}>{doctor.name}</option>
-                    ))}
+                    {doctors.filter(d => d.is_active).map(doctor => <option key={doctor.id} value={doctor.id}>{doctor.name}</option>)}
                   </select>
                 </div>
-
                 {selectedDoctorId && (
                   <>
                     <div className={styles.scheduleGrid}>
@@ -836,80 +678,40 @@ const AdminPage = () => {
                           <div className={styles.dayHeader}>
                             <h4>{day}</h4>
                             <label className={styles.workingToggle}>
-                              <input 
-                                type="checkbox" 
-                                checked={schedule[index]?.isWorkingDay || false}
-                                onChange={(e) => updateScheduleSlot(index, 'isWorkingDay', e.target.checked)}
-                              />
+                              <input type="checkbox" checked={schedule[index]?.isWorkingDay || false} onChange={(e) => updateScheduleSlot(index, 'isWorkingDay', e.target.checked)} />
                               <span>Рабочий день</span>
                             </label>
                           </div>
                           <div className={styles.timeInputs}>
-                            <input 
-                              type="time" 
-                              value={schedule[index]?.startTime || '09:00'}
-                              onChange={(e) => updateScheduleSlot(index, 'startTime', e.target.value)}
-                              className={styles.timeInput} 
-                              disabled={!schedule[index]?.isWorkingDay}
-                            />
+                            <input type="time" value={schedule[index]?.startTime || '09:00'} onChange={(e) => updateScheduleSlot(index, 'startTime', e.target.value)} className={styles.timeInput} disabled={!schedule[index]?.isWorkingDay} />
                             <span>—</span>
-                            <input 
-                              type="time" 
-                              value={schedule[index]?.endTime || '18:00'}
-                              onChange={(e) => updateScheduleSlot(index, 'endTime', e.target.value)}
-                              className={styles.timeInput} 
-                              disabled={!schedule[index]?.isWorkingDay}
-                            />
+                            <input type="time" value={schedule[index]?.endTime || '18:00'} onChange={(e) => updateScheduleSlot(index, 'endTime', e.target.value)} className={styles.timeInput} disabled={!schedule[index]?.isWorkingDay} />
                           </div>
                         </div>
                       ))}
                     </div>
-
                     <div className={styles.exceptionsSection}>
                       <h4>Исключения (отпуск, больничный)</h4>
                       <div className={styles.exceptionForm}>
-                        <input 
-                          type="date" 
-                          className={styles.dateInput}
-                          value={newException.exception_date}
-                          onChange={(e) => setNewException({ ...newException, exception_date: e.target.value })}
-                        />
-                        <select 
-                          className={styles.exceptionType}
-                          value={newException.reason}
-                          onChange={(e) => setNewException({ ...newException, reason: e.target.value })}
-                        >
+                        <input type="date" className={styles.dateInput} value={newException.exception_date} onChange={(e) => setNewException({ ...newException, exception_date: e.target.value })} />
+                        <select className={styles.exceptionType} value={newException.reason} onChange={(e) => setNewException({ ...newException, reason: e.target.value })}>
                           <option value="vacation">Отпуск</option>
                           <option value="sick">Больничный</option>
                           <option value="other">Другое</option>
                         </select>
-                        <button className={styles.addExceptionBtn} onClick={handleAddException}>
-                          <i className="fas fa-plus"></i>
-                          Добавить
-                        </button>
+                        <button className={styles.addExceptionBtn} onClick={handleAddException}><i className="fas fa-plus"></i> Добавить</button>
                       </div>
                       <div className={styles.exceptionsList}>
                         {exceptions.map(ex => (
                           <div key={ex.id} className={styles.exceptionItem}>
                             <span>{new Date(ex.exception_date).toLocaleDateString('ru-RU')}</span>
-                            <span className={styles.exceptionType}>
-                              {ex.reason === 'vacation' ? 'Отпуск' : ex.reason === 'sick' ? 'Больничный' : 'Другое'}
-                            </span>
-                            <button 
-                              className={styles.removeExceptionBtn}
-                              onClick={() => handleDeleteException(ex.id)}
-                            >
-                              <i className="fas fa-times"></i>
-                            </button>
+                            <span className={styles.exceptionType}>{ex.reason === 'vacation' ? 'Отпуск' : ex.reason === 'sick' ? 'Больничный' : 'Другое'}</span>
+                            <button className={styles.removeExceptionBtn} onClick={() => handleDeleteException(ex.id)}><i className="fas fa-times"></i></button>
                           </div>
                         ))}
                       </div>
                     </div>
-
-                    <button className={styles.saveScheduleBtn} onClick={handleSaveSchedule}>
-                      <i className="fas fa-save"></i>
-                      Сохранить расписание
-                    </button>
+                    <button className={styles.saveScheduleBtn} onClick={handleSaveSchedule}><i className="fas fa-save"></i> Сохранить расписание</button>
                   </>
                 )}
               </div>
@@ -918,20 +720,8 @@ const AdminPage = () => {
         )}
       </div>
 
-      {/* Модальные окна */}
-      <DoctorModal
-        isOpen={isDoctorModalOpen}
-        onClose={() => setIsDoctorModalOpen(false)}
-        onSave={handleSaveDoctor}
-        doctor={editingDoctor}
-      />
-
-      <ServiceModal
-        isOpen={isServiceModalOpen}
-        onClose={() => setIsServiceModalOpen(false)}
-        onSave={handleSaveService}
-        service={editingService}
-      />
+      <DoctorModal isOpen={isDoctorModalOpen} onClose={() => setIsDoctorModalOpen(false)} onSave={handleSaveDoctor} doctor={editingDoctor} />
+      <ServiceModal isOpen={isServiceModalOpen} onClose={() => setIsServiceModalOpen(false)} onSave={handleSaveService} service={editingService} />
     </div>
   );
 };
