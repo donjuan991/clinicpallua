@@ -412,14 +412,19 @@ const AdminPage = () => {
 
   const updateAppointmentStatus = async (id: number, status: string) => {
     try {
+      // Используем админский API для обновления статуса
       const res = await fetch('/api/admin/appointments', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ appointmentId: id, status }),
       });
+      
       if (res.ok) {
         showToast('Статус записи обновлен', 'success');
         fetchAppointments();
+      } else {
+        const error = await res.json();
+        showToast('Ошибка: ' + (error.error || 'Не удалось обновить статус'), 'error');
       }
     } catch (error) {
       console.error('Error updating appointment:', error);

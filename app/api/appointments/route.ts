@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
         userId = decoded.id;
         userRole = decoded.role;
       } catch (e) {
+        // Токен невалидный - игнорируем
       }
     }
 
@@ -95,7 +96,82 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверка, что слот свободен
+    // ========== ПРОВЕРКА РАСПИСАНИЯ ВРАЧА ==========
+    
+    // Получаем день недели
+    const dateObj = new Date(appointmentDate);
+    const dayOfWeek = dateObj.getDay(); // 0 = воскресенье, 1 = понедельник, ... 6 = суббота
+    const pgDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
+
+    // 1. Проверяем исключения (отпуск, больничный)
+    const exception = await query<any[]>(
+      `SELECT * FROM schedule_exceptions 
+       WHERE doctor_id = $1 AND exception_date = $2 AND is_working = FALSE`,
+      [doctorId, appointmentDate]
+    );
+
+    if (exception.length > 0) {
+      const reasonText = exception[0].reason === 'vacation' ? 'отпуск' : 
+                         exception[0].reason === 'sick' ? 'больничный' : 'другая причина';
+      return NextResponse.json(
+        { error: `Врач не работает в выбранную дату (${reasonText}). Пожалуйста, выберите другую дату.` },
+        { status: 400 }
+      );
+    }
+
+    // 2. Проверяем расписание на этот день недели
+    const schedule = await query<any[]>(
+      `SELECT * FROM schedules 
+       WHERE doctor_id = $1 AND day_of_week = $2 AND is_working_day = TRUE`,
+      [doctorId, pgDayOfWeek]
+    );
+
+    if (schedule.length === 0) {
+      const dayNames = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+      return NextResponse.json(
+        { error: `Врач не работает в выбранный день недели (${dayNames[dayOfWeek]}). Пожалуйста, выберите другой день.` },
+        { status: 400 }
+      );
+    }
+
+    // 3. Проверяем, что время входит в рабочее расписание
+    const { start_time, end_time } = schedule[0];
+    if (appointmentTime < start_time || appointmentTime >= end_time) {
+      return NextResponse.json(
+        { error: `Выбранное время не входит в рабочее расписание врача (${start_time} - ${end_time}).` },
+        { status: 400 }
+      );
+    }
+
+    // 4. Проверяем, что дата не в прошлом
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(appointmentDate);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      return NextResponse.json(
+        { error: 'Нельзя записаться на прошедшую дату.' },
+        { status: 400 }
+      );
+    }
+
+    // 5. Проверяем, что выбранное время не в прошлом для сегодняшней даты
+    if (selectedDate.getTime() === today.getTime()) {
+      const now = new Date();
+      const [hours, minutes] = appointmentTime.split(':').map(Number);
+      const slotTime = new Date();
+      slotTime.setHours(hours, minutes, 0, 0);
+      
+      if (slotTime <= now) {
+        return NextResponse.json(
+          { error: 'Нельзя записаться на прошедшее время. Пожалуйста, выберите другое время.' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // ========== ПРОВЕРКА ЗАНЯТОСТИ СЛОТА ==========
     const existing = await query<any[]>(
       `SELECT id FROM appointments 
        WHERE doctor_id = $1 AND appointment_date = $2 AND appointment_time = $3 
@@ -120,6 +196,7 @@ export async function POST(request: NextRequest) {
         const decoded = jwt.verify(token, JWT_SECRET) as any;
         userId = decoded.id;
       } catch (e) {
+        // Токен невалидный - игнорируем
       }
     }
 
@@ -172,6 +249,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Отправка email уведомлений (асинхронно)
     
     // 1. Письмо пациенту
     if (patientEmail) {
@@ -221,7 +299,6 @@ export async function POST(request: NextRequest) {
       ).catch(e => console.error('Failed to send admin notification:', e));
     }
 
-    // Логируем успешное создание
     console.log('Appointment successfully created and emails queued');
 
     return NextResponse.json({
@@ -232,11 +309,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Create appointment error:', error);
     
-    // Определяем тип ошибки для более информативного ответа
     let errorMessage = 'Ошибка при создании записи';
     
     if (error instanceof Error) {
-      // Проверяем на типичные ошибки базы данных
       if (error.message.includes('foreign key')) {
         errorMessage = 'Указанный врач или услуга не найдены';
       } else if (error.message.includes('duplicate key')) {
@@ -326,13 +401,6 @@ export async function PUT(request: NextRequest) {
 
     // Отправляем уведомление пациенту об изменении статуса
     if (apt.patient_email) {
-      const statusMessages: Record<string, string> = {
-        confirmed: 'Ваша запись подтверждена! Ждем вас в указанное время.',
-        cancelled: 'Ваша запись была отменена. Если у вас есть вопросы, свяжитесь с нами.',
-        completed: 'Прием завершен. Спасибо, что выбрали нашу клинику!',
-        pending: 'Ваша запись ожидает подтверждения.'
-      };
-
       const emailSubject = 
         status === 'confirmed' ? '✅ Ваша запись подтверждена' :
         status === 'cancelled' ? '❌ Запись отменена' :
