@@ -14,6 +14,10 @@ interface Appointment {
   service_name: string | null;
   status: string;
   comment: string | null;
+  patient_name?: string;
+  patient_phone?: string;
+  appointment_date?: string;
+  appointment_time?: string;
 }
 
 interface User {
@@ -50,13 +54,84 @@ const Dashboard = () => {
     try {
       const res = await fetch('/api/appointments');
       const data = await res.json();
+      console.log('Appointments data:', data);
+      
       if (data.appointments) {
-        setAppointments(data.appointments);
+        // Нормализуем данные: API может возвращать разные названия полей
+        const normalized = data.appointments.map((apt: any) => ({
+          ...apt,
+          // Используем оба варианта названий полей
+          patientName: apt.patient_name || apt.patientName || '',
+          patientPhone: apt.patient_phone || apt.patientPhone || '',
+          appointmentDate: apt.appointment_date || apt.appointmentDate || '',
+          appointmentTime: apt.appointment_time || apt.appointmentTime || '',
+        }));
+        setAppointments(normalized);
       }
     } catch (error) {
       console.error('Error fetching appointments:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Безопасное форматирование даты
+  const formatDate = (dateString: string) => {
+    try {
+      if (!dateString) return 'Дата не указана';
+      
+      // Пробуем создать объект Date
+      const date = new Date(dateString);
+      
+      // Проверяем валидность
+      if (isNaN(date.getTime())) {
+        // Если невалидная дата, пробуем распарсить вручную
+        // Формат YYYY-MM-DD
+        if (dateString.includes('-')) {
+          const parts = dateString.split('-');
+          if (parts.length === 3) {
+            const [year, month, day] = parts.map(Number);
+            const manualDate = new Date(year, month - 1, day);
+            if (!isNaN(manualDate.getTime())) {
+              return manualDate.toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              });
+            }
+          }
+        }
+        
+        // Формат DD.MM.YYYY
+        if (dateString.includes('.')) {
+          const parts = dateString.split('.');
+          if (parts.length === 3) {
+            const [day, month, year] = parts.map(Number);
+            const manualDate = new Date(year, month - 1, day);
+            if (!isNaN(manualDate.getTime())) {
+              return manualDate.toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              });
+            }
+          }
+        }
+        
+        // Если ничего не помогло, возвращаем исходную строку
+        console.warn('Could not parse date:', dateString);
+        return dateString;
+      }
+      
+      // Форматируем валидную дату
+      return date.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error, dateString);
+      return dateString || 'Ошибка даты';
     }
   };
 
@@ -70,35 +145,45 @@ const Dashboard = () => {
       
       if (res.ok) {
         alert('Запись успешно отменена');
-        fetchAppointments(); // Обновляем список
+        fetchAppointments();
       } else {
-        alert('Ошибка при отмене записи');
+        const error = await res.json().catch(() => ({}));
+        alert('Ошибка при отмене записи: ' + (error.error || 'Неизвестная ошибка'));
       }
     } catch (error) {
       console.error('Error cancelling appointment:', error);
-      alert('Ошибка при отмене записи');
+      alert('Ошибка при отмене записи. Попробуйте позже.');
     }
   };
 
   const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending': return 'Ожидает подтверждения';
-      case 'confirmed': return 'Подтверждена';
-      case 'cancelled': return 'Отменена';
-      case 'completed': return 'Завершена';
-      default: return status;
-    }
+    const statusMap: Record<string, string> = {
+      'pending': 'Ожидает подтверждения',
+      'confirmed': 'Подтверждена',
+      'cancelled': 'Отменена',
+      'completed': 'Завершена',
+    };
+    return statusMap[status] || status;
   };
 
   const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'pending': return styles.statusPending;
-      case 'confirmed': return styles.statusConfirmed;
-      case 'cancelled': return styles.statusCancelled;
-      case 'completed': return styles.statusCompleted;
-      default: return '';
-    }
+    const classMap: Record<string, string> = {
+      'pending': styles.statusPending,
+      'confirmed': styles.statusConfirmed,
+      'cancelled': styles.statusCancelled,
+      'completed': styles.statusCompleted,
+    };
+    return classMap[status] || '';
   };
+
+  // Получаем данные записи (поддержка обоих форматов названий полей)
+  const getAppointmentDate = (apt: any) => apt.appointmentDate || apt.appointment_date || '';
+  const getAppointmentTime = (apt: any) => apt.appointmentTime || apt.appointment_time || '';
+  const getPatientName = (apt: any) => apt.patientName || apt.patient_name || '';
+  const getPatientPhone = (apt: any) => apt.patientPhone || apt.patient_phone || '';
+  const getDoctorName = (apt: any) => apt.doctor_name || '';
+  const getServiceName = (apt: any) => apt.service_name || null;
+  const getComment = (apt: any) => apt.comment || null;
 
   if (isLoading) {
     return (
@@ -134,7 +219,7 @@ const Dashboard = () => {
           </div>
           <div className={styles.userDetails}>
             <h2>{user.name}</h2>
-            <p>{user.email}</p>
+            <p><i className="fas fa-envelope"></i> {user.email}</p>
             {user.phone && <p><i className="fas fa-phone"></i> {user.phone}</p>}
           </div>
         </div>
@@ -150,7 +235,7 @@ const Dashboard = () => {
               className={styles.appointmentBtn}
               onClick={() => window.location.href = '/#appointment'}
             >
-              Записаться на прием
+              <i className="fas fa-calendar-plus"></i> Записаться на прием
             </button>
           </div>
         ) : (
@@ -160,11 +245,11 @@ const Dashboard = () => {
                 <div className={styles.appointmentHeader}>
                   <span className={styles.appointmentDate}>
                     <i className="fas fa-calendar"></i>
-                    {new Date(apt.appointmentDate).toLocaleDateString('ru-RU')}
+                    {formatDate(getAppointmentDate(apt))}
                   </span>
                   <span className={styles.appointmentTime}>
                     <i className="fas fa-clock"></i>
-                    {apt.appointmentTime}
+                    {getAppointmentTime(apt)}
                   </span>
                   <span className={`${styles.status} ${getStatusClass(apt.status)}`}>
                     {getStatusText(apt.status)}
@@ -174,18 +259,18 @@ const Dashboard = () => {
                   <div className={styles.appointmentInfo}>
                     <div className={styles.infoRow}>
                       <i className="fas fa-user-md"></i>
-                      <strong>Врач:</strong> {apt.doctor_name}
+                      <strong>Врач:</strong> {getDoctorName(apt)}
                     </div>
-                    {apt.service_name && (
+                    {getServiceName(apt) && (
                       <div className={styles.infoRow}>
                         <i className="fas fa-stethoscope"></i>
-                        <strong>Услуга:</strong> {apt.service_name}
+                        <strong>Услуга:</strong> {getServiceName(apt)}
                       </div>
                     )}
-                    {apt.comment && (
+                    {getComment(apt) && (
                       <div className={styles.infoRow}>
                         <i className="fas fa-comment"></i>
-                        <strong>Комментарий:</strong> {apt.comment}
+                        <strong>Комментарий:</strong> {getComment(apt)}
                       </div>
                     )}
                   </div>
@@ -194,7 +279,7 @@ const Dashboard = () => {
                       className={styles.cancelBtn}
                       onClick={() => cancelAppointment(apt.id)}
                     >
-                      Отменить запись
+                      <i className="fas fa-times-circle"></i> Отменить запись
                     </button>
                   )}
                 </div>
