@@ -116,7 +116,7 @@ const Hero = () => {
                             
                             {/* Бейдж на изображении */}
                             <div className={styles.imageBadge} style={{ top: '90.55%'}}>
-                                <i className="fa-user-md"></i>
+                                <i className="fas fa-user-doctor"></i>
                                 <span>{t('Доктор Паулл')}</span>
                             </div>
                             
