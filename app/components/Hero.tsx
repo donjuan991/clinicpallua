@@ -10,6 +10,7 @@ const Hero = () => {
     const { t } = useLanguage();
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
     const [isCallbackModalOpen, setIsCallbackModalOpen] = useState(false);
+    const [isFlipped, setIsFlipped] = useState(false);
 
     const handleAppointmentClick = () => {
         setIsAppointmentModalOpen(true);
@@ -19,10 +20,15 @@ const Hero = () => {
         setIsCallbackModalOpen(true);
     };
 
+    const handleFlip = () => {
+        setIsFlipped(!isFlipped);
+    };
+
     return (
         <section className={styles.hero}>
             <div className={`container ${styles.heroContainer}`}>
                 
+                {/* Текстовый блок */}
                 <div className={styles.heroContent}>
                     <h1 className={styles.heroTitle}>
                         <span className={styles.titleHighlight}>{t('heroTitle')}</span>
@@ -50,6 +56,7 @@ const Hero = () => {
                         </button>
                     </div>
                     
+                    {/* Преимущества в герое */}
                     <div className={styles.heroFeatures}>
                         <div className={styles.feature}>
                             <div className={styles.featureIcon}>
@@ -93,34 +100,82 @@ const Hero = () => {
                     </div>
                 </div>
                 
+                {/* Изображение доктора с 3D переворотом */}
                 <div className={styles.heroImage}>
-                    <div className={styles.imageWrapper}>
-                        <img 
-                            src="/images/paull_solo.jpg" 
-                            alt="Доктор Паллуа" 
-                            className={styles.doctorImage}
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                borderRadius: '20px'
-                            }}
-                        />
+                    <div 
+                        className={`${styles.imageWrapper} ${isFlipped ? styles.flipped : ''}`}
+                        onClick={handleFlip}
+                    >
+                        {/* Передняя сторона - фото доктора */}
+                        <div className={styles.cardFront}>
+                            <img 
+                                src="/images/paull_solo.jpg" 
+                                alt="Доктор Паллуа" 
+                                className={styles.doctorImage}
+                            />
+                            
+                            {/* Бейдж на изображении */}
+                            <div className={styles.imageBadge} style={{ top: '90.55%'}}>
+                                <i className="fa-user-md"></i>
+                                <span>{t('Доктор Паулл')}</span>
+                            </div>
+                            
+                            {/* Подсказка о перевороте */}
+                            <div className={styles.flipHint}>
+                                <i className="fas fa-sync-alt"></i>
+                                <span>{t('clickToFlip')}</span>
+                            </div>
+                        </div>
                         
-                        <div className={styles.imageBadge} style={{ top: '90.55%'}}>
-                            <i className="fas fa-stethoscope"></i>
-                            <span>{t('consultation')}</span>
+                        {/* Задняя сторона - QR код */}
+                        <div className={styles.cardBack}>
+                            <div className={styles.qrContainer}>
+                                <h3 className={styles.qrTitle}>{t('scanQR')}</h3>
+                                <div className={styles.qrCode}>
+                                    <img 
+                                        src="/images/QRCODE.png" 
+                                        alt="QR код для записи" 
+                                        className={styles.qrImage}
+                                    />
+                                </div>
+                                <p className={styles.qrDescription}>
+                                    {t('qrDescription')}
+                                </p>
+                                <div className={styles.qrActions}>
+                                    <a 
+                                        href="tel:+79131489142" 
+                                        className={styles.qrPhoneBtn}
+                                    >
+                                        <i className="fas fa-phone"></i>
+                                        +7 (913) 148-91-42
+                                    </a>
+                                    <button 
+                                        className={styles.qrAppointmentBtn}
+                                        onClick={handleAppointmentClick}
+                                    >
+                                        <i className="fas fa-calendar-alt"></i>
+                                        {t('bookAppointment')}
+                                    </button>
+                                </div>
+                            </div>
+                            {/* Подсказка о перевороте обратно */}
+                            <div className={styles.flipBackHint}>
+                                <i className="fas fa-sync-alt"></i>
+                                <span>{t('clickToFlipBack')}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
+            {/* Декоративные элементы */}
             <div className={styles.heroDecorations}>
                 <div className={styles.decorationCircle}></div>
                 <div className={styles.decorationCircle}></div>
                 <div className={styles.decorationCircle}></div>
             </div>
 
+            {/* Модальные окна */}
             <AppointmentModal 
                 isOpen={isAppointmentModalOpen}
                 onClose={() => setIsAppointmentModalOpen(false)}

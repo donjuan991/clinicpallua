@@ -78,6 +78,9 @@ const translations = {
         yearsOfWork: 'Лет работы',
         happyPatients: 'Довольных пациентов',
         qualityMark: 'Наш знак качества',
+        clickToFlip: 'Нажмите, чтобы перевернуть',
+        clickToFlipBack: 'Нажмите, чтобы вернуть',
+        qrDescription: 'Наведите камеру на QR-код, чтобы перейти на сайт',
         
         // About
         ourStrengths: 'Наши сильные стороны',
@@ -357,6 +360,9 @@ const translations = {
         yearsOfWork: 'Years of Work',
         happyPatients: 'Happy Patients',
         qualityMark: 'Quality Mark',
+        clickToFlip: 'Click to flip',
+        clickToFlipBack: 'Click to flip back',
+        qrDescription: 'Scan QR-code with your camera to visit our website',
         
         // About
         ourStrengths: 'Our Strengths',
@@ -636,6 +642,9 @@ const translations = {
         yearsOfWork: 'Jahre Erfahrung',
         happyPatients: 'Zufriedene Patienten',
         qualityMark: 'Qualitätssiegel',
+        clickToFlip: 'Klicken zum Umdrehen',
+        clickToFlipBack: 'Klicken zum Zurückdrehen',
+        qrDescription: 'Scannen Sie den QR-Code mit Ihrer Kamera',
         
         // About
         ourStrengths: 'Unsere Stärken',
