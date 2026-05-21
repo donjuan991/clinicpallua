@@ -47,7 +47,6 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Проверка согласия при регистрации
     if (!isLogin && !formData.privacyAgreed) {
       setError(t('privacyRequired'));
       return;
@@ -93,6 +92,28 @@ const LoginPage = () => {
     alert(t('userAgreementText'));
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '14px 16px',
+    border: '1px solid #e8e8e8',
+    borderRadius: '12px',
+    fontSize: '15px',
+    background: 'white',
+    outline: 'none',
+    transition: 'border-color 0.3s',
+    boxSizing: 'border-box' as const
+  };
+
+  const labelStyle = {
+    fontSize: '14px',
+    fontWeight: '500' as const,
+    color: '#2d2d2d',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '8px'
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -134,7 +155,7 @@ const LoginPage = () => {
           {!isLogin && (
             <>
               <div>
-                <label style={{ fontSize: '14px', fontWeight: '500', color: '#2d2d2d', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <label style={labelStyle}>
                   <i className="fas fa-user" style={{ color: '#771d55' }}></i>
                   {t('fullName')}
                 </label>
@@ -145,23 +166,14 @@ const LoginPage = () => {
                   onChange={handleChange}
                   placeholder={t('fullNamePlaceholder')}
                   required={!isLogin}
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    border: '1px solid #e8e8e8',
-                    borderRadius: '12px',
-                    fontSize: '15px',
-                    background: 'white',
-                    outline: 'none',
-                    transition: 'border-color 0.3s'
-                  }}
+                  style={inputStyle}
                   onFocus={(e) => e.target.style.borderColor = '#771d55'}
                   onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '14px', fontWeight: '500', color: '#2d2d2d', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <label style={labelStyle}>
                   <i className="fas fa-phone" style={{ color: '#771d55' }}></i>
                   {t('phone')}
                 </label>
@@ -171,16 +183,7 @@ const LoginPage = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+7 (900) 123-45-67"
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    border: '1px solid #e8e8e8',
-                    borderRadius: '12px',
-                    fontSize: '15px',
-                    background: 'white',
-                    outline: 'none',
-                    transition: 'border-color 0.3s'
-                  }}
+                  style={inputStyle}
                   onFocus={(e) => e.target.style.borderColor = '#771d55'}
                   onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
                 />
@@ -189,7 +192,7 @@ const LoginPage = () => {
           )}
 
           <div>
-            <label style={{ fontSize: '14px', fontWeight: '500', color: '#2d2d2d', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <label style={labelStyle}>
               <i className="fas fa-envelope" style={{ color: '#771d55' }}></i>
               Email
             </label>
@@ -200,23 +203,14 @@ const LoginPage = () => {
               onChange={handleChange}
               placeholder="example@mail.ru"
               required
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                border: '1px solid #e8e8e8',
-                borderRadius: '12px',
-                fontSize: '15px',
-                background: 'white',
-                outline: 'none',
-                transition: 'border-color 0.3s'
-              }}
+              style={inputStyle}
               onFocus={(e) => e.target.style.borderColor = '#771d55'}
               onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: '14px', fontWeight: '500', color: '#2d2d2d', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <label style={labelStyle}>
               <i className="fas fa-lock" style={{ color: '#771d55' }}></i>
               {t('password')}
             </label>
@@ -227,20 +221,31 @@ const LoginPage = () => {
               onChange={handleChange}
               placeholder="********"
               required
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                border: '1px solid #e8e8e8',
-                borderRadius: '12px',
-                fontSize: '15px',
-                background: 'white',
-                outline: 'none',
-                transition: 'border-color 0.3s'
-              }}
+              style={inputStyle}
               onFocus={(e) => e.target.style.borderColor = '#771d55'}
               onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
             />
           </div>
+
+          {/* Ссылка "Забыли пароль?" */}
+          {isLogin && (
+            <div style={{ textAlign: 'right', marginTop: '-10px' }}>
+              <a 
+                href="/forgot-password" 
+                style={{
+                  color: '#771d55',
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                  transition: 'all 0.3s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+              >
+                {t('forgotPassword')}
+              </a>
+            </div>
+          )}
 
           {/* Галочка соглашения при регистрации */}
           {!isLogin && (
@@ -282,11 +287,7 @@ const LoginPage = () => {
                 <a 
                   href="#" 
                   onClick={handlePrivacyPolicyClick}
-                  style={{
-                    color: '#771d55',
-                    textDecoration: 'underline',
-                    fontWeight: '500'
-                  }}
+                  style={{ color: '#771d55', textDecoration: 'underline', fontWeight: '500' }}
                 >
                   {t('privacyPolicy')}
                 </a>
@@ -294,11 +295,7 @@ const LoginPage = () => {
                 <a 
                   href="#" 
                   onClick={handleUserAgreementClick}
-                  style={{
-                    color: '#771d55',
-                    textDecoration: 'underline',
-                    fontWeight: '500'
-                  }}
+                  style={{ color: '#771d55', textDecoration: 'underline', fontWeight: '500' }}
                 >
                   {t('userAgreement')}
                 </a>

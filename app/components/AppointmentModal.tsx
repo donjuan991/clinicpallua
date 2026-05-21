@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import styles from './AppointmentModal.module.css';
+import { useLanguage } from './languageContext';
 
 interface Doctor {
   id: number;
@@ -40,14 +41,15 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
   initialService = '', 
   initialDoctor = '' 
 }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<AppointmentFormData>({
     name: '',
     phone: '',
     email: '',
-    serviceId: '',
+    serviceId: initialService,
     date: '',
     time: '',
-    doctorId: '',
+    doctorId: initialDoctor,
     comment: ''
   });
 
@@ -59,15 +61,16 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
 
-  // Загрузка врачей и услуг при открытии модалки
   useEffect(() => {
     if (isOpen) {
       fetchDoctors();
       fetchServices();
+      if (initialDoctor) {
+        setFormData(prev => ({ ...prev, doctorId: initialDoctor }));
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, initialDoctor]);
 
-  // ⭐ ВАЖНО: Загрузка слотов при изменении врача или даты
   useEffect(() => {
     if (formData.doctorId && formData.date) {
       fetchAvailableSlots(formData.doctorId, formData.date);
@@ -142,7 +145,6 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      // Только рабочие дни (пн-пт)
       const dayOfWeek = date.getDay();
       if (dayOfWeek >= 1 && dayOfWeek <= 5) {
         const formattedDate = date.toISOString().split('T')[0];
@@ -160,11 +162,11 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
   const handleNextStep = () => {
     if (step === 1 && (!formData.name || !formData.phone)) {
-      alert('Пожалуйста, заполните обязательные поля');
+      alert(t('fillRequiredFields'));
       return;
     }
     if (step === 2 && (!formData.doctorId || !formData.date || !formData.time)) {
-      alert('Пожалуйста, выберите врача, дату и время');
+      alert(t('selectDoctorDateTime'));
       return;
     }
     setStep(step + 1);
@@ -199,9 +201,8 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.message || 'Запись успешно оформлена! Мы свяжемся с вами для подтверждения.');
+        alert(data.message || t('appointmentSuccess'));
         onClose();
-        // Сброс формы
         setFormData({
           name: '',
           phone: '',
@@ -214,11 +215,11 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
         });
         setStep(1);
       } else {
-        alert(data.error || 'Ошибка при создании записи');
+        alert(data.error || t('appointmentError'));
       }
     } catch (error) {
       console.error('Error submitting appointment:', error);
-      alert('Произошла ошибка при отправке. Пожалуйста, попробуйте позже.');
+      alert(t('appointmentNetworkError'));
     } finally {
       setIsLoading(false);
     }
@@ -241,15 +242,15 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
             <div className={styles.progressSteps}>
               <div className={`${styles.step} ${step >= 1 ? styles.active : ''}`}>
                 <span className={styles.stepNumber}>1</span>
-                <span className={styles.stepLabel}>Данные</span>
+                <span className={styles.stepLabel}>{t('stepData')}</span>
               </div>
               <div className={`${styles.step} ${step >= 2 ? styles.active : ''}`}>
                 <span className={styles.stepNumber}>2</span>
-                <span className={styles.stepLabel}>Врач и время</span>
+                <span className={styles.stepLabel}>{t('stepDoctorTime')}</span>
               </div>
               <div className={`${styles.step} ${step >= 3 ? styles.active : ''}`}>
                 <span className={styles.stepNumber}>3</span>
-                <span className={styles.stepLabel}>Подтверждение</span>
+                <span className={styles.stepLabel}>{t('stepConfirm')}</span>
               </div>
             </div>
           </div>
@@ -259,17 +260,18 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className={styles.appointmentForm}>
+          {/* Шаг 1: Данные */}
           {step === 1 && (
             <div className={styles.formStep}>
               <h3 className={styles.stepTitle}>
                 <i className="fas fa-user-circle"></i>
-                Ваши контактные данные
+                {t('yourContactDetails')}
               </h3>
               
               <div className={styles.formGroup}>
                 <label htmlFor="name" className={styles.formLabel}>
                   <i className="fas fa-user"></i>
-                  ФИО *
+                  {t('fullName')} *
                 </label>
                 <input
                   type="text"
@@ -278,7 +280,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   value={formData.name}
                   onChange={handleChange}
                   className={styles.formInput}
-                  placeholder="Иванов Иван Иванович"
+                  placeholder={t('fullNamePlaceholder')}
                   required
                 />
               </div>
@@ -286,7 +288,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               <div className={styles.formGroup}>
                 <label htmlFor="phone" className={styles.formLabel}>
                   <i className="fas fa-phone"></i>
-                  Телефон *
+                  {t('phone')} *
                 </label>
                 <input
                   type="tel"
@@ -303,7 +305,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               <div className={styles.formGroup}>
                 <label htmlFor="email" className={styles.formLabel}>
                   <i className="fas fa-envelope"></i>
-                  Email (для уведомлений)
+                  {t('emailOptional')}
                 </label>
                 <input
                   type="email"
@@ -322,24 +324,25 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   className={styles.nextButton}
                   onClick={handleNextStep}
                 >
-                  Далее
+                  {t('next')}
                   <i className="fas fa-arrow-right"></i>
                 </button>
               </div>
             </div>
           )}
 
+          {/* Шаг 2: Врач и время */}
           {step === 2 && (
             <div className={styles.formStep}>
               <h3 className={styles.stepTitle}>
                 <i className="fas fa-calendar-alt"></i>
-                Выбор врача и времени
+                {t('selectDoctorAndTime')}
               </h3>
 
               <div className={styles.formGroup}>
                 <label htmlFor="doctorId" className={styles.formLabel}>
                   <i className="fas fa-user-md"></i>
-                  Врач *
+                  {t('selectDoctor')} *
                 </label>
                 <select
                   id="doctorId"
@@ -349,7 +352,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   className={styles.formSelect}
                   required
                 >
-                  <option value="">Выберите врача</option>
+                  <option value="">{t('selectDoctor')}</option>
                   {doctors.map(doctor => (
                     <option key={doctor.id} value={doctor.id}>
                       {doctor.name} - {doctor.specialization}
@@ -361,7 +364,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               <div className={styles.formGroup}>
                 <label htmlFor="serviceId" className={styles.formLabel}>
                   <i className="fas fa-stethoscope"></i>
-                  Услуга (по желанию)
+                  {t('selectService')}
                 </label>
                 <select
                   id="serviceId"
@@ -370,7 +373,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   onChange={handleChange}
                   className={styles.formSelect}
                 >
-                  <option value="">Выберите услугу</option>
+                  <option value="">{t('selectService')}</option>
                   {services.map(service => (
                     <option key={service.id} value={service.id}>
                       {service.name}
@@ -383,7 +386,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 <div className={styles.formGroup}>
                   <label htmlFor="date" className={styles.formLabel}>
                     <i className="fas fa-calendar"></i>
-                    Дата *
+                    {t('selectDate')} *
                   </label>
                   <select
                     id="date"
@@ -393,7 +396,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                     className={styles.formSelect}
                     required
                   >
-                    <option value="">Выберите дату</option>
+                    <option value="">{t('selectDate')}</option>
                     {dateOptions.map(date => (
                       <option key={date.value} value={date.value}>
                         {date.label}
@@ -405,7 +408,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 <div className={styles.formGroup}>
                   <label htmlFor="time" className={styles.formLabel}>
                     <i className="fas fa-clock"></i>
-                    Время *
+                    {t('selectTime')} *
                   </label>
                   <select
                     id="time"
@@ -417,7 +420,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                     disabled={!formData.doctorId || !formData.date || isLoadingSlots}
                   >
                     <option value="">
-                      {isLoadingSlots ? 'Загрузка...' : 'Выберите время'}
+                      {isLoadingSlots ? t('loading') : t('selectTime')}
                     </option>
                     {timeSlots.map(time => (
                       <option key={time} value={time}>
@@ -426,8 +429,8 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                     ))}
                   </select>
                   {formData.doctorId && formData.date && timeSlots.length === 0 && !isLoadingSlots && (
-                    <p style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
-                      Нет свободного времени на выбранную дату
+                    <p style={{ color: '#dc3545', fontSize: '12px', marginTop: '5px' }}>
+                      {t('noAvailableSlots')}
                     </p>
                   )}
                 </div>
@@ -436,7 +439,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               <div className={styles.formGroup}>
                 <label htmlFor="comment" className={styles.formLabel}>
                   <i className="fas fa-comment"></i>
-                  Комментарий (описание симптомов)
+                  {t('comment')}
                 </label>
                 <textarea
                   id="comment"
@@ -444,7 +447,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   value={formData.comment}
                   onChange={handleChange}
                   className={styles.formTextarea}
-                  placeholder="Опишите вашу проблему или пожелания..."
+                  placeholder={t('commentPlaceholder')}
                   rows={3}
                 ></textarea>
               </div>
@@ -456,36 +459,72 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   onClick={handlePrevStep}
                 >
                   <i className="fas fa-arrow-left"></i>
-                  Назад
+                  {t('back')}
                 </button>
                 <button 
                   type="button" 
                   className={styles.nextButton}
                   onClick={handleNextStep}
                 >
-                  Далее
+                  {t('next')}
                   <i className="fas fa-arrow-right"></i>
                 </button>
               </div>
             </div>
           )}
 
+          {/* Шаг 3: Подтверждение */}
           {step === 3 && (
             <div className={styles.formStep}>
               <h3 className={styles.stepTitle}>
                 <i className="fas fa-check-circle"></i>
-                Подтверждение записи
+                {t('confirmAppointment')}
               </h3>
+
+              {/* Памятка перед записью */}
+              <div style={{
+                background: 'rgba(255, 193, 7, 0.08)',
+                border: '1px solid rgba(255, 193, 7, 0.2)',
+                borderLeft: '4px solid #ffc107',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '24px'
+              }}>
+                <h4 style={{ 
+                  margin: '0 0 12px 0', 
+                  color: '#856404', 
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <i className="fas fa-info-circle"></i>
+                  {t('importantInfo')}
+                </h4>
+                <ul style={{ 
+                  margin: 0, 
+                  paddingLeft: '20px', 
+                  color: '#856404', 
+                  fontSize: '13px',
+                  lineHeight: '1.8'
+                }}>
+                  <li>{t('reminder1')}</li>
+                  <li>{t('reminder2')}</li>
+                  <li>{t('reminder3')}</li>
+                  <li>{t('reminder4')}</li>
+                </ul>
+              </div>
 
               <div className={styles.confirmationInfo}>
                 <div className={styles.infoCard}>
-                  <h4>Ваши данные</h4>
+                  <h4><i className="fas fa-user"></i> {t('yourData')}</h4>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>ФИО:</span>
+                    <span className={styles.infoLabel}>{t('fullName')}:</span>
                     <span className={styles.infoValue}>{formData.name}</span>
                   </div>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Телефон:</span>
+                    <span className={styles.infoLabel}>{t('phone')}:</span>
                     <span className={styles.infoValue}>{formData.phone}</span>
                   </div>
                   {formData.email && (
@@ -497,30 +536,30 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 </div>
 
                 <div className={styles.infoCard}>
-                  <h4>Детали записи</h4>
+                  <h4><i className="fas fa-calendar-check"></i> {t('appointmentDetails')}</h4>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Врач:</span>
+                    <span className={styles.infoLabel}>{t('doctor')}:</span>
                     <span className={styles.infoValue}>
-                      {doctors.find(d => d.id.toString() === formData.doctorId)?.name || 'Не выбрано'}
+                      {doctors.find(d => d.id.toString() === formData.doctorId)?.name || t('notSelected')}
                     </span>
                   </div>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Услуга:</span>
+                    <span className={styles.infoLabel}>{t('service')}:</span>
                     <span className={styles.infoValue}>
-                      {services.find(s => s.id.toString() === formData.serviceId)?.name || 'Не выбрано'}
+                      {services.find(s => s.id.toString() === formData.serviceId)?.name || t('notSelected')}
                     </span>
                   </div>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Дата и время:</span>
+                    <span className={styles.infoLabel}>{t('dateTime')}:</span>
                     <span className={styles.infoValue}>
-                      {formData.date ? new Date(formData.date).toLocaleDateString('ru-RU') : 'Не выбрано'} в {formData.time}
+                      {formData.date ? new Date(formData.date).toLocaleDateString('ru-RU') : t('notSelected')} {t('at')} {formData.time}
                     </span>
                   </div>
                 </div>
 
                 {formData.comment && (
                   <div className={styles.infoCard}>
-                    <h4>Комментарий</h4>
+                    <h4><i className="fas fa-comment"></i> {t('comment')}</h4>
                     <p className={styles.commentText}>{formData.comment}</p>
                   </div>
                 )}
@@ -533,7 +572,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                     className={styles.checkboxInput}
                   />
                   <label htmlFor="privacy" className={styles.checkboxLabel}>
-                    Я согласен на обработку персональных данных и подтверждаю корректность указанной информации
+                    {t('agreePrivacy')} <a href="#" onClick={(e) => { e.preventDefault(); alert(t('privacyPolicyText')); }} style={{ color: '#771d55', textDecoration: 'underline' }}>{t('privacyPolicy')}</a> {t('confirmInfo')}
                   </label>
                 </div>
               </div>
@@ -545,7 +584,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   onClick={handlePrevStep}
                 >
                   <i className="fas fa-arrow-left"></i>
-                  Назад
+                  {t('back')}
                 </button>
                 <button 
                   type="submit" 
@@ -555,12 +594,12 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   {isLoading ? (
                     <>
                       <i className="fas fa-spinner fa-spin"></i>
-                      Отправка...
+                      {t('sending')}
                     </>
                   ) : (
                     <>
                       <i className="fas fa-paper-plane"></i>
-                      Записаться на прием
+                      {t('bookAppointment')}
                     </>
                   )}
                 </button>
