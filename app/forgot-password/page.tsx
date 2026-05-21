@@ -24,10 +24,10 @@ const ForgotPasswordPage = () => {
         setSuccess(true);
       } else {
         const data = await res.json();
-        setError(data.error || 'Ошибка при отправке письма');
+        setError(data.error || 'Ошибка');
       }
     } catch (error) {
-      setError('Ошибка соединения с сервером');
+      setError('Ошибка соединения');
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +70,7 @@ const ForgotPasswordPage = () => {
           <p style={{ color: '#777777', fontSize: '14px' }}>
             {success 
               ? 'Проверьте вашу почту для восстановления пароля' 
-              : 'Введите email, и мы отправим вам ссылку для восстановления'}
+              : 'Введите email, и мы отправим вам ссылку'}
           </p>
         </div>
 
@@ -80,18 +80,18 @@ const ForgotPasswordPage = () => {
             <p style={{ color: '#2d2d2d', marginBottom: '20px' }}>
               Мы отправили письмо на <strong>{email}</strong>
             </p>
-            <button onClick={() => window.location.href = '/login'} style={{
+            <a href="/login" style={{
               background: 'linear-gradient(135deg, #771d55 0%, #9a366e 100%)',
               color: 'white',
-              border: 'none',
+              textDecoration: 'none',
               borderRadius: '12px',
               padding: '14px 30px',
               fontSize: '16px',
               fontWeight: '600',
-              cursor: 'pointer'
+              display: 'inline-block'
             }}>
               Вернуться ко входу
-            </button>
+            </a>
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -147,11 +147,7 @@ const ForgotPasswordPage = () => {
               opacity: isLoading ? 0.7 : 1,
               marginTop: '10px'
             }}>
-              {isLoading ? (
-                <><i className="fas fa-spinner fa-spin"></i> Отправка...</>
-              ) : (
-                'Отправить ссылку'
-              )}
+              {isLoading ? 'Отправка...' : 'Отправить ссылку'}
             </button>
 
             <div style={{ textAlign: 'center', marginTop: '15px' }}>

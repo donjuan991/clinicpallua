@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const ResetPasswordPage = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
-
+  const [token, setToken] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -15,10 +13,14 @@ const ResetPasswordPage = () => {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (!token) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenParam = urlParams.get('token');
+    setToken(tokenParam);
+    
+    if (!tokenParam) {
       setError('Не указан токен для сброса пароля');
     }
-  }, [token]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,15 +180,11 @@ const ResetPasswordPage = () => {
               padding: '14px',
               fontSize: '16px',
               fontWeight: '600',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              opacity: isLoading ? 0.7 : 1,
+              cursor: (isLoading || !token) ? 'not-allowed' : 'pointer',
+              opacity: (isLoading || !token) ? 0.7 : 1,
               marginTop: '10px'
             }}>
-              {isLoading ? (
-                <><i className="fas fa-spinner fa-spin"></i> Смена пароля...</>
-              ) : (
-                'Сменить пароль'
-              )}
+              {isLoading ? 'Смена пароля...' : 'Сменить пароль'}
             </button>
           </form>
         )}
