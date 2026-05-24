@@ -1,41 +1,38 @@
 import nodemailer from 'nodemailer';
 
-const getTransporter = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('[EMAIL] Email credentials not configured');
-    return null;
-  }
-
-  console.log('[EMAIL] Configuring transporter for:', process.env.EMAIL_USER);
-
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-};
-
 export async function sendEmail(to: string, subject: string, html: string) {
-  const transporter = getTransporter();
-  
-  if (!transporter) {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.log('[EMAIL] Not configured. Would send to:', to, subject);
     return false;
   }
 
   try {
+    console.log('[EMAIL] Sending to:', to, '| Subject:', subject);
+
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // Используем SSL
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS.replace(/\s/g, ''), // Убираем пробелы
+      },
+      tls: {
+        rejectUnauthorized: false, // Важно для Vercel
+      },
+    });
+
     const info = await transporter.sendMail({
       from: `"Клиника Паллуа" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
     });
-    console.log('[EMAIL] Sent successfully to:', to, '| ID:', info.messageId);
+    
+    console.log('[EMAIL] Sent to:', to, '| ID:', info.messageId);
     return true;
   } catch (error: any) {
-    console.error('[EMAIL] Error sending to:', to, '| Error:', error.message);
+    console.error('[EMAIL] Error:', error.message);
     return false;
   }
 }
@@ -72,7 +69,7 @@ export function getAppointmentEmailTemplate(data: {
         <h1 style="color: white; margin: 0; font-size: 22px;">Клиника Паллуа</h1>
         <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0;">Пластическая хирургия</p>
       </div>
-      <div style="background: white; padding: 25px; border: 1px solid #eee; border-top: none; border-radius: 0 0 10px 10px;">
+      <div style="background: white; padding: 25px; border-radius: 0 0 10px 10px;">
         <h2 style="color: #771d55; margin: 0 0 20px; font-size: 18px;">📋 Информация о записи</h2>
         <table style="width: 100%; border-collapse: collapse;">
           <tr><td style="padding: 8px 0; color: #666;">Пациент:</td><td style="padding: 8px 0; font-weight: 500;">${data.patientName}</td></tr>
@@ -102,7 +99,7 @@ export function getRegistrationEmailTemplate(data: { name: string; email: string
       <div style="background: linear-gradient(135deg, #771d55, #9a366e); padding: 25px; border-radius: 10px 10px 0 0; text-align: center;">
         <h1 style="color: white; margin: 0; font-size: 22px;">🎉 Добро пожаловать!</h1>
       </div>
-      <div style="background: white; padding: 25px; border: 1px solid #eee; border-top: none; border-radius: 0 0 10px 10px;">
+      <div style="background: white; padding: 25px; border-radius: 0 0 10px 10px;">
         <h2 style="color: #771d55; margin: 0 0 15px;">Здравствуйте, ${data.name}!</h2>
         <p style="color: #333; line-height: 1.6;">Спасибо за регистрацию в личном кабинете Клиники Паллуа. Мы рады приветствовать вас!</p>
         <p style="color: #333;">Ваш email для входа: <strong>${data.email}</strong></p>
@@ -157,7 +154,7 @@ export function getResetPasswordEmailTemplate(name: string, resetUrl: string) {
       <div style="background: linear-gradient(135deg, #771d55, #9a366e); padding: 25px; border-radius: 10px 10px 0 0; text-align: center;">
         <h1 style="color: white; margin: 0; font-size: 22px;">🔐 Восстановление пароля</h1>
       </div>
-      <div style="background: white; padding: 25px; border: 1px solid #eee; border-top: none; border-radius: 0 0 10px 10px;">
+      <div style="background: white; padding: 25px; border-radius: 0 0 10px 10px;">
         <h2 style="color: #771d55; margin: 0 0 15px;">Здравствуйте, ${name}!</h2>
         <p style="color: #333; line-height: 1.6;">Вы запросили восстановление пароля для входа в личный кабинет Клиники Паллуа.</p>
         <div style="text-align: center; margin: 25px 0;">
@@ -165,7 +162,7 @@ export function getResetPasswordEmailTemplate(name: string, resetUrl: string) {
             Сбросить пароль
           </a>
         </div>
-        <p style="color: #777; font-size: 13px;">⚠️ Ссылка действительна в течение <strong>1 часа</strong>. Если вы не запрашивали восстановление, проигнорируйте это письмо.</p>
+        <p style="color: #777; font-size: 13px;">⚠️ Ссылка действительна в течение <strong>1 часа</strong>.</p>
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
         <p style="color: #777; font-size: 13px; margin: 0;">📍 Омск, ул. 70 лет Октября, 26 | 📞 +7 (913) 148-91-42</p>
       </div>
